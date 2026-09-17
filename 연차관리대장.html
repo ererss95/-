@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#13375b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="연차관리대장">
+<link rel="manifest" href="manifest.json">
+<title>연차관리대장</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'맑은 고딕',Malgun Gothic,sans-serif;background:#f0f4f8;color:#1a2332;font-size:14px}
+.app{max-width:1440px;margin:0 auto;padding:20px}
+.sticky-header{position:sticky;top:0;z-index:100;background:#f0f4f8;padding-top:12px;padding-bottom:2px}
+.sticky-header h1{font-size:22px;font-weight:700;color:#13375b;margin:0 0 2px}
+h1{font-size:22px;font-weight:700;color:#13375b;margin-bottom:2px}
+.subtitle{font-size:13px;color:#5a7a99;margin-bottom:10px}
+.top-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.tabs{display:flex;gap:4px;background:#dde8f4;border-radius:10px;padding:4px}
+.tab{padding:7px 18px;border-radius:8px;border:none;background:transparent;cursor:pointer;font-size:13px;color:#5a7a99;font-family:inherit;font-weight:500;transition:all .15s}
+.tab.active{background:#fff;color:#13375b;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.sel{padding:7px 10px;border-radius:8px;border:1.5px solid #b0c8e0;background:#fff;font-size:13px;font-family:inherit;color:#13375b;cursor:pointer}
+.btn{padding:7px 14px;border-radius:8px;border:1.5px solid #2e75b6;background:#2e75b6;color:#fff;font-size:13px;font-family:inherit;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:opacity .15s;white-space:nowrap}
+.btn:hover{opacity:.85}
+.btn.outline{background:#fff;color:#2e75b6}
+.btn.danger{border-color:#c00;background:#fff;color:#c00}
+.btn.sm{padding:4px 10px;font-size:12px}
+.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;background:#fff;border-radius:10px;padding:10px 14px;border:1.5px solid #cde0f4;box-shadow:0 2px 8px rgba(30,80,140,.08)}
+.filter-bar label{font-size:12px;color:#5a7a99;font-weight:600;white-space:nowrap}
+.sort-btns{display:flex;gap:4px;flex-wrap:wrap}
+.sort-btn{padding:5px 12px;border-radius:20px;border:1.5px solid #b0c8e0;background:#fff;font-size:12px;font-family:inherit;color:#5a7a99;cursor:pointer;font-weight:500;transition:all .12s;white-space:nowrap}
+.sort-btn.active{background:#2e75b6;border-color:#2e75b6;color:#fff;font-weight:700}
+.filter-sep{width:1px;height:22px;background:#dde8f4;margin:0 4px}
+.corp-filter-btns{display:flex;gap:4px;flex-wrap:wrap}
+.corp-filter-btn{padding:5px 12px;border-radius:20px;border:1.5px solid #b0c8e0;background:#fff;font-size:12px;font-family:inherit;color:#5a7a99;cursor:pointer;font-weight:500;transition:all .12s;white-space:nowrap}
+.corp-filter-btn.active{border-color:#2e75b6;color:#2e75b6;font-weight:700;background:#eef5fc}
+.emp-grid{display:grid;gap:12px;padding-top:10px}
+.emp-card{background:#fff;border-radius:14px;border:1.5px solid #cde0f4;overflow:hidden;box-shadow:0 2px 8px rgba(30,80,140,.07)}
+.corp-stripe{height:4px}
+.emp-hdr{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;user-select:none;transition:background .12s}
+.emp-hdr:hover{background:#f5f9fd}
+.avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.emp-meta{flex:1;min-width:0}
+.emp-name{font-weight:700;font-size:15px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.corp-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700}
+.emp-sub{font-size:12px;color:#6b8aaa;margin-top:2px}
+.stat-group{display:flex;gap:14px;flex-shrink:0;width:210px;justify-content:flex-end}
+.stat{text-align:center;min-width:42px}
+.stat .n{font-size:17px;font-weight:700}
+.stat .l{font-size:10px;color:#6b8aaa;margin-top:1px}
+.stat.green .n{color:#2e7d32}
+.stat.amber .n{color:#e65100}
+.stat.red .n{color:#c62828}
+.stat.blue .n{color:#1565c0}
+.hdr-actions{display:flex;gap:5px;align-items:center;flex-shrink:0;width:280px;justify-content:flex-end;flex-wrap:nowrap}
+.chevron{font-size:18px;color:#6b8aaa;margin-left:6px;transition:transform .2s;line-height:1;flex-shrink:0}
+.chevron.open{transform:rotate(180deg)}
+.emp-body{border-top:1.5px solid #dde8f4;padding:16px;display:none}
+.emp-body.open{display:block}
+.summary-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:16px}
+.s-card{background:#f0f6fd;border-radius:10px;padding:10px;text-align:center}
+.s-card .sn{font-size:20px;font-weight:700}
+.s-card .sl{font-size:11px;color:#6b8aaa;margin-top:2px}
+.s-card.green .sn{color:#2e7d32}
+.s-card.amber .sn{color:#e65100}
+.s-card.red .sn{color:#c62828}
+.s-card.blue .sn{color:#1565c0}
+.s-card.purple .sn{color:#6a1b9a}
+.sec-title{font-size:13px;font-weight:700;color:#2e75b6;margin-bottom:8px;margin-top:14px;border-left:3px solid #2e75b6;padding-left:8px;display:flex;align-items:center;gap:8px}
+.field input,.field select,.field textarea{width:100%;padding:6px 9px;border-radius:8px;border:1.5px solid #b0c8e0;background:#fff;font-size:13px;font-family:inherit;color:#1a2332;outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus{border-color:#2e75b6}
+.field textarea{resize:vertical;min-height:48px}
+.add-form{background:#f0f6fd;border-radius:10px;padding:10px 12px;margin-bottom:12px}
+.add-form .form-row{display:flex;gap:7px;flex-wrap:wrap;align-items:flex-end}
+.add-form .f{flex:1;min-width:90px}
+.add-form .f label{font-size:11px;color:#6b8aaa;display:block;margin-bottom:3px;font-weight:600}
+.add-form .f input,.add-form .f select{width:100%;padding:6px 8px;border-radius:8px;border:1.5px solid #b0c8e0;background:#fff;font-size:13px;font-family:inherit;color:#1a2332;outline:none}
+.add-form .f input:focus,.add-form .f select:focus{border-color:#2e75b6}
+table.use-tbl{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+.use-tbl th{padding:6px 10px;text-align:center;font-weight:700;background:#f0f4f8;color:#2e75b6;font-size:12px;border-bottom:2px solid #cde0f4}
+.use-tbl td{padding:6px 10px;border-bottom:1px solid #e8f0f8;vertical-align:middle;text-align:center}
+.use-tbl tr:last-child td{border-bottom:none}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.badge.full{background:#e2efda;color:#2e7d32}
+.badge.half_am{background:#fff2cc;color:#e65100}
+.badge.half_pm{background:#ffe0b2;color:#bf360c}
+.badge.hour{background:#ddeeff;color:#1565c0}
+.badge.condolence{background:#f3e5f5;color:#7b1fa2}
+.badge.sick{background:#fce4ec;color:#c62828}
+.del-btn{background:none;border:none;cursor:pointer;color:#ccc;padding:3px 6px;border-radius:6px;font-size:15px;line-height:1;transition:all .12s}
+.del-btn:hover{color:#c62828;background:#fff0f0}
+.chart-wrap{position:relative;width:100%;height:170px;margin-top:4px}
+.divider{height:1.5px;background:#e8f0f8;margin:14px 0}
+.save-notice{background:#e2efda;border-radius:8px;padding:8px 12px;font-size:12px;color:#2e7d32;margin-bottom:12px;border:1px solid #b7d9a3}
+.law-box{background:#f0f6fd;border-radius:8px;padding:8px 12px;font-size:12px;color:#1565c0;margin-bottom:10px;border:1px solid #b0c8e0;line-height:1.7}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:999}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:16px;padding:22px;width:420px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,.18);max-height:92vh;overflow-y:auto}
+.modal h3{font-size:16px;font-weight:700;color:#13375b;margin-bottom:14px}
+.modal .f{margin-bottom:9px}
+.modal .f label{font-size:12px;color:#6b8aaa;display:block;margin-bottom:3px;font-weight:600}
+.modal .f input,.modal .f select,.modal .f textarea{width:100%;padding:7px 10px;border-radius:8px;border:1.5px solid #b0c8e0;font-size:13px;font-family:inherit;outline:none;color:#1a2332}
+.modal .f input:focus,.modal .f select:focus{border-color:#2e75b6}
+.modal .f textarea{resize:vertical;min-height:44px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.modal .f input.required-err,.modal .f select.required-err,.modal .f textarea.required-err{border-color:#c62828;background:#fff8f8}
+.req-msg{font-size:11px;color:#c62828;margin-top:3px;display:none}
+.req-msg.show{display:block}
+.confirm-modal{background:#fff;border-radius:16px;padding:24px;width:340px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,.2);text-align:center}
+.confirm-modal .icon{font-size:36px;margin-bottom:10px}
+.confirm-modal h4{font-size:16px;font-weight:700;color:#13375b;margin-bottom:6px}
+.confirm-modal p{font-size:13px;color:#5a7a99;margin-bottom:18px;line-height:1.6}
+.confirm-modal .actions{display:flex;gap:8px;justify-content:center}
+
+/* ── 연차촉진 배지 ── */
+.promo-wrap{display:flex;gap:4px;align-items:center;flex-wrap:nowrap;min-width:130px;justify-content:flex-end}
+.promo-badge{display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap;line-height:1.4}
+.promo-badge.promo1{background:#fff8e1;color:#b45309;border:1.5px solid #f59e0b}
+.promo-badge.promo2{background:#fde8e8;color:#b91c1c;border:1.5px solid #f87171}
+
+/* ── 2년차 전환 박스 ── */
+.second-year-box{background:#fffbeb;border:1.5px solid #f59e0b;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13px;line-height:1.9}
+.second-year-box .sy-title{font-weight:700;color:#92400e;margin-bottom:6px;font-size:13px}
+.sy-row{display:flex;gap:16px;flex-wrap:wrap}
+.sy-item{background:#fff;border-radius:8px;padding:8px 14px;border:1px solid #fde68a;text-align:center;min-width:110px}
+.sy-item .sy-n{font-size:22px;font-weight:700}
+.sy-item .sy-l{font-size:11px;color:#92400e;margin-top:2px}
+.sy-item.blue .sy-n{color:#1565c0}
+.sy-item.green .sy-n{color:#2e7d32}
+.sy-item.gray .sy-n{color:#9e9e9e}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sticky-header">
+    <h1>📋 연차관리대장</h1>
+    <p class="subtitle">데이터는 브라우저에 자동 저장됩니다 — 창을 닫아도 유지됩니다</p>
+
+    <div class="top-bar">
+      <div class="tabs">
+        <button class="tab" onclick="switchTab('fiscal',this)">회계연도 기준</button>
+        <button class="tab active" onclick="switchTab('hire',this)">입사일자 기준</button>
+      </div>
+      <select class="sel" id="yearSel" onchange="renderAll()">
+        <option value="2022">2022년</option>
+        <option value="2023">2023년</option>
+        <option value="2024">2024년</option>
+        <option value="2025">2025년</option>
+        <option value="2026">2026년</option>
+        <option value="2027">2027년</option>
+        <option value="2028">2028년</option>
+      </select>
+      <button class="btn" onclick="openAddModal()">＋ 직원 추가</button>
+      <button class="btn outline" onclick="exportCSV()">⬇ CSV 내보내기</button>
+      <button class="btn" onclick="saveAsFile()" style="background:#2e7d32;border-color:#2e7d32">💾 파일로 저장 (새 창 → Ctrl+S)</button>
+      <button class="btn" onclick="saveAsFile()" style="background:#2e7d32;border-color:#2e7d32">💾 파일로 저장 (새 창 → Ctrl+S)</button>
+    </div>
+
+    <div class="filter-bar">
+      <label>정렬</label>
+      <div class="sort-btns">
+        <button class="sort-btn active" onclick="setSort('corp',this)">법인순</button>
+        <button class="sort-btn" onclick="setSort('dept',this)">부서순</button>
+        <button class="sort-btn" onclick="setSort('hire',this)">입사일자순</button>
+        <button class="sort-btn" onclick="setSort('name',this)">이름순</button>
+      </div>
+      <div class="filter-sep"></div>
+      <label>법인</label>
+      <div class="corp-filter-btns" id="corpFilterBtns"></div>
+    </div>
+  </div>
+
+  <div id="empGrid" class="emp-grid"></div>
+</div>
+
+<!-- 직원 추가 모달 -->
+<div class="modal-bg" id="addModal">
+  <div class="modal">
+    <h3>＋ 직원 추가</h3>
+    <div class="modal-grid">
+      <div class="f">
+        <label>사원명 <span style="color:#c62828">*</span></label>
+        <input id="m_name" placeholder="홍길동">
+        <div class="req-msg" id="m_name_err">사원명을 입력하세요.</div>
+      </div>
+      <div class="f">
+        <label>법인 <span style="color:#c62828">*</span></label>
+        <select id="m_corp" onchange="updateDeptOptions('m_corp','m_dept')">
+          <option value="">-- 선택 --</option>
+          <option value="광신석유">광신석유</option>
+          <option value="광신가스">광신가스</option>
+          <option value="광신홀딩스">광신홀딩스</option>
+        </select>
+        <div class="req-msg" id="m_corp_err">법인을 선택하세요.</div>
+      </div>
+      <div class="f">
+        <label>부서 <span style="color:#c62828">*</span></label>
+        <select id="m_dept">
+          <option value="">-- 법인을 먼저 선택하세요 --</option>
+        </select>
+        <div class="req-msg" id="m_dept_err">부서를 선택하세요.</div>
+      </div>
+      <div class="f">
+        <label>직급 <span style="color:#c62828">*</span></label>
+        <input id="m_rank" placeholder="대리">
+        <div class="req-msg" id="m_rank_err">직급을 입력하세요.</div>
+      </div>
+      <div class="f" style="grid-column:1/-1">
+        <label>입사일 <span style="color:#c62828">*</span></label>
+        <input type="date" id="m_hire" onchange="previewLawDays()">
+        <div class="req-msg" id="m_hire_err">입사일을 선택하세요.</div>
+        <div id="m_law_preview" style="margin-top:5px;font-size:12px;color:#1565c0;background:#eef5fc;padding:5px 9px;border-radius:6px;border:1px solid #b0c8e0">입사일을 선택하면 근로기준법 기준 발생 연차가 자동 계산됩니다.</div>
+      </div>
+    </div>
+    <div class="f"><label>비고</label><textarea id="m_note" rows="2" placeholder="특이사항 입력..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn outline" onclick="closeAddModal()">취소</button>
+      <button class="btn" onclick="addEmployee()">추가하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 직원 수정 모달 -->
+<div class="modal-bg" id="editModal">
+  <div class="modal">
+    <h3>✏️ 직원 정보 수정</h3>
+    <input type="hidden" id="e_id">
+    <div class="modal-grid">
+      <div class="f"><label>사원명 *</label><input id="e_name"></div>
+      <div class="f"><label>법인</label>
+        <select id="e_corp" onchange="updateDeptOptions('e_corp','e_dept')">
+          <option value="광신석유">광신석유</option>
+          <option value="광신가스">광신가스</option>
+          <option value="광신홀딩스">광신홀딩스</option>
+        </select>
+      </div>
+      <div class="f"><label>부서</label>
+        <select id="e_dept"></select>
+      </div>
+      <div class="f"><label>직급</label><input id="e_rank"></div>
+      <div class="f" style="grid-column:1/-1"><label>입사일</label>
+        <input type="date" id="e_hire" onchange="previewLawDaysEdit()">
+        <div id="e_law_preview" style="margin-top:5px;font-size:12px;color:#1565c0;background:#eef5fc;padding:5px 9px;border-radius:6px;border:1px solid #b0c8e0;display:none"></div>
+      </div>
+      <div class="f" style="grid-column:1/-1">
+        <label>퇴사일 <span style="font-size:11px;color:#9e9e9e">(퇴사한 경우에만 입력 — 이후 연차 입력 차단)</span></label>
+        <input type="date" id="e_resign" onchange="toggleResignNotice()">
+        <div id="e_resign_notice" style="margin-top:5px;font-size:12px;color:#c62828;background:#fff8f8;padding:5px 9px;border-radius:6px;border:1px solid #f87171;display:none">⚠️ 퇴사일이 설정되면 해당 직원은 직원 목록에 <strong>[퇴사]</strong>로 표시되며, 다음 연도부터 목록에서 제외됩니다.</div>
+      </div>
+    </div>
+    <div class="f"><label>발생 연차 (일) — 자동 계산됨, 직접 수정 가능</label>
+      <input type="number" id="e_total" min="0" step="0.5">
+    </div>
+    <div class="f"><label>비고</label><textarea id="e_note" rows="2"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn outline" onclick="closeEditModal()">취소</button>
+      <button class="btn" onclick="saveEdit()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 확인 모달 (삭제) -->
+<div class="modal-bg" id="confirmModal">
+  <div class="confirm-modal">
+    <div class="icon" id="conf_icon">⚠️</div>
+    <h4 id="conf_title">삭제하시겠습니까?</h4>
+    <p id="conf_msg"></p>
+    <div class="actions">
+      <button class="btn outline" onclick="closeConfirm()">취소</button>
+      <button class="btn danger" id="conf_ok" onclick="doConfirm()">삭제</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════════════════
+// 상수
+// ═══════════════════════════════════════════════════════════════
+const MONTHS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+const CORP_INFO = {
+  '광신석유':  { label:'광신석유',  stripe:'#2e75b6', badge:'#ddeeff', badgeTxt:'#1565c0', avatar:['#dde8f4','#2e75b6'] },
+  '광신가스':  { label:'광신가스',  stripe:'#2e7d32', badge:'#e2efda', badgeTxt:'#2e7d32', avatar:['#e2efda','#2e7d32'] },
+  '광신홀딩스':{ label:'광신홀딩스',stripe:'#7b1fa2', badge:'#ede7f6', badgeTxt:'#6a1b9a', avatar:['#f3e5f5','#7b1fa2'] },
+};
+const CORP_LIST = ['광신석유','광신가스','광신홀딩스'];
+const CORP_DEPTS = {
+  '광신석유': ['인사총무팀','경리회계팀','현장지원팀','법인영업팀','부산현장','경남지사','울산지사','명지주유소','충렬대로주유소','양정주유소','백양대로주유소','가야대로주유소','수영강변대로주유소','울산대교주유소','고성주유소','김해대로주유소','나전주유소','무학주유소','양덕주유소','진해대로주유소'],
+  '광신가스': ['인사총무팀','경리회계팀','현장지원팀','법인영업팀','낙동대로충전소','을숙도대로충전소'],
+  '광신홀딩스': ['인사총무팀','경리회계팀','현장지원팀','법인영업팀','낙동대로주유소','을숙도대로주유소','양산대로주유소','토곡주유소'],
+};
+/** 엑셀 약식 부서명 → 정식 부서명 정규화 */
+const DEPT_NORMALIZE = {
+  '충렬대로': '충렬대로주유소',
+  '무학': '무학주유소',
+  '양정': '양정주유소',
+  '백양대로': '백양대로주유소',
+  '가야대로': '가야대로주유소',
+  '수영강변대로': '수영강변대로주유소',
+  '울산대교': '울산대교주유소',
+  '고성': '고성주유소',
+  '김해대로': '김해대로주유소',
+  '양덕': '양덕주유소',
+  '진해대로': '진해대로주유소',
+  '명지': '명지주유소',
+};
+function normalizeDept(dept){ return DEPT_NORMALIZE[dept] || dept; }
+/** 법인 내 부서 순서 인덱스 (없으면 999) */
+function deptIndex(corp, dept){ const list=CORP_DEPTS[corp]||[]; const i=list.indexOf(dept); return i===-1?999:i; }
+const AVATAR_FALLBACK = [['#fff2cc','#e65100'],['#f8e0e0','#c62828']];
+
+// ═══════════════════════════════════════════════════════════════
+// 상태
+// ═══════════════════════════════════════════════════════════════
+let currentTab = 'hire';
+let sortKey = 'corp';
+let corpFilter = 'all';
+let expandedIds = new Set();
+let charts = {};
+let nextEmpId = 43, nextUsageId = 100;
+let confirmCallback = null;
+
+// ═══════════════════════════════════════════════════════════════
+// 현재 연도 기본 선택
+// ═══════════════════════════════════════════════════════════════
+(function setDefaultYear(){
+  const curYear = new Date().getFullYear();
+  const sel = document.getElementById('yearSel');
+  let found = false;
+  for(let i=0;i<sel.options.length;i++){
+    if(parseInt(sel.options[i].value)===curYear){ sel.options[i].selected=true; found=true; break; }
+  }
+  if(!found){
+    const opt=document.createElement('option');
+    opt.value=curYear; opt.textContent=curYear+'년'; opt.selected=true;
+    sel.appendChild(opt);
+  }
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// 날짜 유틸
+// ═══════════════════════════════════════════════════════════════
+function today(){ return new Date(); }
+
+/** 만 완성 연수 (기념일 방식) */
+function completedYears(hire, ref){
+  let y = ref.getFullYear() - hire.getFullYear();
+  const anniv = new Date(ref.getFullYear(), hire.getMonth(), hire.getDate());
+  if(ref < anniv) y--;
+  return Math.max(0, y);
+}
+
+/** 만 개월 수 (기념일 방식) — d1 < d2 가정 */
+function monthDiff(d1, d2){
+  let months = (d2.getFullYear()-d1.getFullYear())*12 + (d2.getMonth()-d1.getMonth());
+  if(d2.getDate() < d1.getDate()) months--;
+  return Math.max(0, months);
+}
+
+/** YYYY-MM-DD 문자열 → Date */
+function parseDate(str){ const [y,m,d]=str.split('-').map(Number); return new Date(y,m-1,d); }
+
+/** Date → YYYY-MM-DD 문자열 */
+function fmtDate(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+// ═══════════════════════════════════════════════════════════════
+// 데이터
+// ═══════════════════════════════════════════════════════════════
+function migrateUsages(emp){
+  emp.usages=(emp.usages||[]).map(u=>u.type==='half'?{...u,type:'half_pm'}:u);
+  return emp;
+}
+function loadData(){
+  try{
+    const d=localStorage.getItem('leaveData_v5');
+    if(d){ const p=JSON.parse(d); nextEmpId=p.nextEmpId||43; nextUsageId=p.nextUsageId||100; return (p.employees||defaultEmployees()).map(migrateUsages); }
+  }catch(e){}
+  return defaultEmployees();
+}
+function migrateCorpName(corp){ if(corp==='A법인')return '광신석유'; if(corp==='B법인')return '광신가스'; if(corp==='C법인')return '광신홀딩스'; return corp; }
+function saveData(){ try{ localStorage.setItem('leaveData_v5',JSON.stringify({employees,nextEmpId,nextUsageId})); }catch(e){} }
+function defaultEmployees(){
+  return [
+    {id:1,name:'최욱진',corp:'광신석유',dept:'현장지원팀',rank:'이사',hireDate:'2000-08-01',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:2,name:'박승환',corp:'광신석유',dept:'현장지원팀',rank:'과장',hireDate:'2019-06-12',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:3,name:'김지환',corp:'광신석유',dept:'현장지원팀',rank:'대리',hireDate:'2018-01-23',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:4,name:'김민호',corp:'광신석유',dept:'현장지원팀',rank:'대리',hireDate:'2023-06-19',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:5,name:'김창배',corp:'광신석유',dept:'인사총무팀',rank:'부장',hireDate:'2002-08-26',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:6,name:'강아량',corp:'광신석유',dept:'인사총무팀',rank:'대리',hireDate:'2020-08-10',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:7,name:'서성종',corp:'광신석유',dept:'경리회계팀',rank:'부장',hireDate:'2005-04-01',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:8,name:'박연회',corp:'광신석유',dept:'양정주유소',rank:'소장',hireDate:'2009-02-02',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:9,name:'조경원',corp:'광신석유',dept:'경리회계팀',rank:'대리',hireDate:'2023-01-11',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:10,name:'박재진',corp:'광신석유',dept:'경리회계팀',rank:'대리',hireDate:'2024-04-15',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:11,name:'최정모',corp:'광신석유',dept:'법인영업팀',rank:'이사',hireDate:'2001-12-17',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:12,name:'류미진',corp:'광신석유',dept:'법인영업팀',rank:'대리',hireDate:'2019-12-09',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:13,name:'정영수',corp:'광신석유',dept:'부산현장',rank:'대형기사',hireDate:'2008-11-17',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:14,name:'이칠우',corp:'광신석유',dept:'부산현장',rank:'대형기사',hireDate:'2007-01-01',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:15,name:'이재일',corp:'광신석유',dept:'부산현장',rank:'대형기사',hireDate:'2012-12-03',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:16,name:'신동철',corp:'광신석유',dept:'부산현장',rank:'대형기사',hireDate:'2017-06-13',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:17,name:'권도현',corp:'광신석유',dept:'경남지사',rank:'대형기사',hireDate:'2009-09-30',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:18,name:'최병호',corp:'광신석유',dept:'울산지사',rank:'대형기사',hireDate:'2009-10-26',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:19,name:'정두영',corp:'광신석유',dept:'명지주유소',rank:'선임소장',hireDate:'2008-08-21',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:20,name:'김인',corp:'광신석유',dept:'명지주유소',rank:'부소장',hireDate:'2006-02-14',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:21,name:'한근영',corp:'광신석유',dept:'충렬대로주유소',rank:'소장',hireDate:'2020-02-24',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:22,name:'김대훈',corp:'광신석유',dept:'충렬대로주유소',rank:'부소장',hireDate:'2023-01-08',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:23,name:'최시훈',corp:'광신석유',dept:'충렬대로주유소',rank:'부소장',hireDate:'2025-11-10',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:24,name:'서충환',corp:'광신석유',dept:'충렬대로주유소',rank:'부소장',hireDate:'2025-11-27',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:25,name:'전채덕',corp:'광신석유',dept:'양정주유소',rank:'소장',hireDate:'1999-09-10',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:26,name:'문상은',corp:'광신석유',dept:'양정주유소',rank:'부소장',hireDate:'2022-12-29',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:27,name:'김상민',corp:'광신석유',dept:'무학주유소',rank:'소장',hireDate:'2023-04-24',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:28,name:'홍해석',corp:'광신석유',dept:'가야대로주유소',rank:'소장',hireDate:'2022-06-20',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:29,name:'이재성',corp:'광신석유',dept:'가야대로주유소',rank:'부소장',hireDate:'2022-08-01',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:30,name:'최성훈',corp:'광신석유',dept:'수영강변대로주유소',rank:'소장',hireDate:'2019-02-14',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:31,name:'김종현',corp:'광신석유',dept:'백양대로주유소',rank:'부소장',hireDate:'2021-02-18',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:32,name:'강태훈',corp:'광신석유',dept:'수영강변대로주유소',rank:'부소장',hireDate:'2025-10-10',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:33,name:'조영진',corp:'광신석유',dept:'울산대교주유소',rank:'소장',hireDate:'2017-03-16',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:34,name:'노동아',corp:'광신석유',dept:'울산대교주유소',rank:'부소장',hireDate:'2024-11-02',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:35,name:'유상혁',corp:'광신석유',dept:'고성주유소',rank:'소장',hireDate:'2017-03-16',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:36,name:'엄영태',corp:'광신석유',dept:'고성주유소',rank:'부소장',hireDate:'2024-12-01',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:37,name:'박민상',corp:'광신석유',dept:'김해대로주유소',rank:'소장',hireDate:'2005-08-12',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:38,name:'김건우',corp:'광신석유',dept:'김해대로주유소',rank:'부소장',hireDate:'2024-01-25',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:39,name:'장상균',corp:'광신석유',dept:'무학주유소',rank:'선임소장',hireDate:'2008-07-03',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:40,name:'강석민',corp:'광신석유',dept:'양덕주유소',rank:'소장',hireDate:'2007-04-23',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:41,name:'이성호',corp:'광신석유',dept:'진해대로주유소',rank:'선임소장',hireDate:'2008-09-01',totalDays:null,note:'',resignDate:null,usages:[]},
+    {id:42,name:'김성표',corp:'광신석유',dept:'진해대로주유소',rank:'부소장',hireDate:'2019-11-20',totalDays:null,note:'',resignDate:null,usages:[]},
+  ];
+}
+let employees = loadData();
+
+// ═══════════════════════════════════════════════════════════════
+// ★ 핵심: 연차 계산 로직 (근로기준법 제60조)
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * 1년 이상 근속 시 법정 연차일수
+ * 근속연수(만년) → 15일 + floor((연수-1)/2), 최대 25일
+ */
+function annualDaysByYears(yrs){
+  return Math.min(15 + Math.floor((yrs-1)/2), 25);
+}
+
+/**
+ * 회계연도(1/1~12/31) 기준 연차 계산
+ * 
+ * [케이스 분류]
+ * A. 해당 연도에 아직 입사하지 않은 경우 → 0일
+ * B. 해당 연도 1/1 기준으로 1년 미만 & 1주년도 해당 연도 안에 없음 → 순수 월차
+ * C. 해당 연도 안에 1주년 도래 → 2년차 전환 (월차 + 연차 분리)
+ * D. 해당 연도 1/1 기준 1년 이상 → 법정 연차
+ *
+ * [현재날짜 실시간 반영]
+ * - 조회연도 = 현재연도 → 현재날짜(today) 기준으로 계산
+ * - 조회연도 ≠ 현재연도 → 해당연도 말(12/31) 기준으로 계산
+ *
+ * 반환: {
+ *   type: 'none'|'monthly'|'transition'|'annual',
+ *   monthly: 월차일수(type=monthly,transition),
+ *   annual: 연차일수(type=annual,transition),
+ *   annivDate: Date (type=transition일 때 1주년),
+ *   annivReached: boolean (type=transition, 1주년 도달 여부),
+ *   total: 합산 (표시용)
+ * }
+ */
+function calcFiscalInfo(hireDate, targetYear){
+  if(!hireDate) return {type:'annual', annual:15, total:15};
+  const hire = parseDate(hireDate);
+  const yearStart = new Date(targetYear, 0, 1);
+  const yearEnd   = new Date(targetYear, 11, 31);
+  const now = today();
+
+  // A. 아직 입사 전
+  if(hire > yearEnd) return {type:'none', total:0};
+
+  // 현재날짜 실시간 vs 연말 기준 선택
+  const refDate = (now >= yearStart && now <= yearEnd) ? now : yearEnd;
+
+  // targetYear 1/1 기준 완성 근속연수
+  const yrsAtYearStart = completedYears(hire, yearStart);
+
+  // D. 연초 이미 1년 이상
+  if(yrsAtYearStart >= 1){
+    const days = annualDaysByYears(yrsAtYearStart);
+    return {type:'annual', annual:days, total:days};
+  }
+
+  // 1주년 날짜 계산
+  const annivDate = new Date(hire.getFullYear()+1, hire.getMonth(), hire.getDate());
+
+  // C. 1주년이 해당 연도 내에 있음 → 2년차 전환
+  if(annivDate >= yearStart && annivDate <= yearEnd){
+    // 1주년 이전 발생 월차 (입사~1주년 전날, 단 refDate까지만)
+    const monthlyRef = refDate < annivDate ? refDate : annivDate;
+    const monthlyDays = Math.min(monthDiff(hire, monthlyRef), 11);
+
+    // 1주년 이후 부여 연차 (연도 내 15일 부여, refDate가 1주년 이후일 때만)
+    const annivReached = refDate >= annivDate;
+    const annualDays = annivReached ? annualDaysByYears(1) : 0; // 1년 완성 → 15일
+
+    return {
+      type:'transition',
+      monthly: monthlyDays,
+      annual: annualDays,
+      annivDate: annivDate,
+      annivReached: annivReached,
+      total: monthlyDays + annualDays
+    };
+  }
+
+  // B. 순수 첫해 월차 (1주년이 해당 연도에 없음)
+  // 입사일이 해당 연도에 있는 경우: 입사월부터 refDate까지
+  // 입사일이 이전 연도인 경우: yearStart부터이지만 입사일 기준 월차 누적
+  const monthlyRef = refDate;
+  const monthlyDays = Math.min(monthDiff(hire, monthlyRef), 11);
+  return {type:'monthly', monthly:monthlyDays, total:monthlyDays};
+}
+
+/**
+ * 입사일자 기준 연차 (오늘 실시간)
+ * - 1년 미만: 만 개월 수, 최대 11
+ * - 1년 이상: 15+ 가산, 최대 25
+ */
+function calcHireInfo(hireDate){
+  if(!hireDate) return {type:'annual', annual:15, total:15};
+  const hire = parseDate(hireDate);
+  const ref = today();
+  if(ref < hire) return {type:'none', total:0};
+  const yrs = completedYears(hire, ref);
+  if(yrs < 1){
+    const days = Math.min(monthDiff(hire, ref), 11);
+    return {type:'monthly', monthly:days, total:days};
+  }
+  const days = annualDaysByYears(yrs);
+  return {type:'annual', annual:days, total:days};
+}
+
+/** 탭에 따라 info 반환 */
+function getLeaveInfo(hireDate, targetYear){
+  return currentTab==='hire' ? calcHireInfo(hireDate) : calcFiscalInfo(hireDate, targetYear);
+}
+
+/** 표시용 설명문 */
+function lawDaysDesc(hireDate, year){
+  if(!hireDate) return '';
+  if(currentTab==='hire'){
+    const info = calcHireInfo(hireDate);
+    const hire = parseDate(hireDate);
+    const ref = today();
+    if(info.type==='none') return '입사 전';
+    if(info.type==='monthly'){
+      return `근속 ${monthDiff(hire,ref)}개월 → 발생 월차 ${info.monthly}일 (1년 미만, 오늘 기준 실시간)`;
+    }
+    const yrs = completedYears(hire,ref);
+    const extra = Math.floor((yrs-1)/2);
+    return `근속 ${yrs}년 → 법정 연차 ${info.annual}일 (15일+${extra}일 가산, 오늘 기준 실시간)`;
+  } else {
+    const info = calcFiscalInfo(hireDate, year);
+    const hire = parseDate(hireDate);
+    const yearStart = new Date(year,0,1);
+    if(info.type==='none') return `${year}년 중 입사 전`;
+    if(info.type==='transition'){
+      const yd = info.annivReached
+        ? `1주년(${fmtDate(info.annivDate)}) 도래 → 월차 ${info.monthly}일 + 연차 ${info.annual}일`
+        : `1주년(${fmtDate(info.annivDate)}) 미도래 → 현재까지 월차 ${info.monthly}일 발생`;
+      return `2년차 전환: ${yd}`;
+    }
+    if(info.type==='monthly'){
+      const now = today();
+      const refDate = (now >= yearStart && now <= new Date(year,11,31)) ? now : new Date(year,11,31);
+      return `입사 첫해(또는 연속 1년미만) → ${fmtDate(refDate)} 기준 월차 ${info.monthly}일 발생`;
+    }
+    const yrs = completedYears(hire, yearStart);
+    const extra = Math.floor((yrs-1)/2);
+    return `${year}년 1/1 기준 근속 ${yrs}년 완성 → 법정 연차 ${info.annual}일 (15일+${extra}일 가산)`;
+  }
+}
+
+function calcTotal(emp){
+  if(emp.totalDays!==null && emp.totalDays!==undefined) return emp.totalDays;
+  const info = getLeaveInfo(emp.hireDate, getYear());
+  return info.total;
+}
+
+function calcLawDays(hireDate, targetYear){
+  return getLeaveInfo(hireDate, targetYear).total;
+}
+
+function usedDays(emp){
+  // 경조휴가(condolence), 병가(sick)는 연차 차감 없음 (hours=0)
+  return emp.usages.filter(u=>u.date.startsWith(getYear()+'')).reduce((a,u)=>a+(u.hours||0)/8,0);
+}
+
+function getYear(){ return parseInt(document.getElementById('yearSel').value); }
+function fmt(v){ return v%1===0?String(v):v.toFixed(1); }
+
+// ═══════════════════════════════════════════════════════════════
+// ★ 연차촉진 대상 판정 (근로기준법 제61조)
+//
+// [공통 원칙]
+// ① 1년 이상 근속자 (연간 연차)
+//    - 1차 촉진: 연차 소멸 6개월 전(7/1) ~ 소멸 5개월 전
+//    - 2차 촉진: 연차 소멸 3개월 전 ~ 2개월 전
+// ② 1년 미만 근속자 (월 단위 연차, 근로기준법 제61조 2항)
+//    - 1차 촉진: 최초 입사일로부터 1년이 되는 날의 3개월 전까지 미사용 연차를 서면통보
+//               = (1주년 - 3개월) ~ (1주년 - 2개월): 남은 개월 2~3개월
+//    - 2차 촉진: 사용자가 사용시기 지정, (1주년 - 1개월) 이내 서면통보
+//               = 남은 개월 0~1개월
+//
+// [회계연도 기준]
+//   - 조회연도 = 현재연도일 때만 표시
+//   - 1년 이상(annual/transition): 회계연도 말(12/31) 기준으로 촉진 일정 적용
+//   - 1년 미만(monthly): 1주년 기준 월 단위 촉진
+// ═══════════════════════════════════════════════════════════════
+function getPromoStatus(emp){
+  if(!emp.hireDate) return null;
+  if(emp.resignDate) return null;
+  const hire = parseDate(emp.hireDate);
+  const now  = today();
+  const year = getYear();
+
+  if(currentTab === 'fiscal'){
+    if(year !== now.getFullYear()) return null;
+    const info = calcFiscalInfo(emp.hireDate, year);
+    if(info.type === 'none') return null;
+
+    if(info.type === 'annual' || info.type === 'transition'){
+      // 1년 이상: 회계연도 12/31 소멸 기준, 7월=1차, 10월=2차
+      const m = now.getMonth()+1;
+      if(m === 7) return 'promo1';
+      if(m === 10) return 'promo2';
+      return null;
+    }
+
+    if(info.type === 'monthly'){
+      // 1년 미만: 입사 1주년까지 남은 개월 기준
+      const annivDate = new Date(hire.getFullYear()+1, hire.getMonth(), hire.getDate());
+      const mLeft = monthDiff(now, annivDate);
+      if(mLeft >= 2 && mLeft <= 3) return 'promo1';
+      if(mLeft >= 0 && mLeft <= 1) return 'promo2';
+      return null;
+    }
+    return null;
+
+  } else {
+    // 입사일자 기준
+    const info = calcHireInfo(emp.hireDate);
+    if(info.type === 'none') return null;
+
+    if(info.type === 'annual'){
+      // 1년 이상: 다음 기념일(연차 소멸) 기준 촉진
+      const yrs = completedYears(hire, now);
+      const nextAnniv = new Date(hire.getFullYear()+yrs+1, hire.getMonth(), hire.getDate());
+      const mLeft = monthDiff(now, nextAnniv);
+      if(mLeft >= 5 && mLeft <= 6) return 'promo1';
+      if(mLeft >= 2 && mLeft <= 3) return 'promo2';
+      return null;
+    }
+
+    if(info.type === 'monthly'){
+      // 1년 미만: 입사 1주년까지 남은 개월 기준 (근로기준법 §61②)
+      const annivDate = new Date(hire.getFullYear()+1, hire.getMonth(), hire.getDate());
+      const mLeft = monthDiff(now, annivDate);
+      if(mLeft >= 2 && mLeft <= 3) return 'promo1';
+      if(mLeft >= 0 && mLeft <= 1) return 'promo2';
+      return null;
+    }
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 정렬 & 필터
+// ═══════════════════════════════════════════════════════════════
+function toggleResignNotice(){
+  const val=document.getElementById('e_resign').value;
+  document.getElementById('e_resign_notice').style.display=val?'block':'none';
+}
+
+function setSort(key,el){ sortKey=key; document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderAll(); }
+function setCorpFilter(corp,el){ corpFilter=corp; document.querySelectorAll('.corp-filter-btn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderAll(); }
+function sortedEmployees(){
+  const year=getYear();
+  const curYear=new Date().getFullYear();
+  // 조회연도가 현재연도가 아닌 경우 퇴사자 제외, 현재연도는 표시(단 퇴사연도 해당자만)
+  let list = employees.filter(e=>{
+    if(!e.resignDate) return true; // 재직중
+    const resignYear=parseInt(e.resignDate.split('-')[0]);
+    // 조회연도 < 퇴사연도: 아직 재직중이므로 표시
+    // 조회연도 = 퇴사연도: 퇴사자로 표시
+    // 조회연도 > 퇴사연도: 다음년도부터 제외
+    return year <= resignYear;
+  });
+  if(corpFilter!=='all') list=list.filter(e=>e.corp===corpFilter);
+  list.sort((a,b)=>{
+    // 퇴사자는 맨 뒤로
+    const ra=a.resignDate?1:0, rb=b.resignDate?1:0;
+    if(ra!==rb) return ra-rb;
+    if(sortKey==='corp'){
+      const ci=v=>CORP_LIST.indexOf(v.corp);
+      if(ci(a)!==ci(b)) return ci(a)-ci(b);
+      // 같은 법인이면 부서 정의 순서로 정렬
+      const da=deptIndex(a.corp,a.dept), db=deptIndex(b.corp,b.dept);
+      if(da!==db) return da-db;
+      return (a.hireDate||'').localeCompare(b.hireDate||'');
+    }
+    if(sortKey==='dept'){
+      // 법인 먼저, 그 다음 부서 정의 순서
+      const ci=v=>CORP_LIST.indexOf(v.corp);
+      if(ci(a)!==ci(b)) return ci(a)-ci(b);
+      const da=deptIndex(a.corp,a.dept), db=deptIndex(b.corp,b.dept);
+      if(da!==db) return da-db;
+      return (a.hireDate||'').localeCompare(b.hireDate||'');
+    }
+    if(sortKey==='hire') return (a.hireDate||'').localeCompare(b.hireDate||'');
+    if(sortKey==='name') return (a.name||'').localeCompare(b.name||'','ko');
+    return 0;
+  });
+  return list;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 렌더
+// ═══════════════════════════════════════════════════════════════
+function renderCorpFilter(){
+  const wrap=document.getElementById('corpFilterBtns');
+  wrap.innerHTML='';
+  const all=document.createElement('button');
+  all.className='corp-filter-btn'+(corpFilter==='all'?' active':'');
+  all.textContent='전체'; all.onclick=()=>setCorpFilter('all',all);
+  wrap.appendChild(all);
+  CORP_LIST.forEach(corp=>{
+    const info=CORP_INFO[corp];
+    const b=document.createElement('button');
+    b.className='corp-filter-btn'+(corpFilter===corp?' active':'');
+    b.textContent=info.label; b.onclick=()=>setCorpFilter(corp,b);
+    wrap.appendChild(b);
+  });
+}
+function renderAll(){ renderCorpFilter(); const grid=document.getElementById('empGrid'); grid.innerHTML=''; sortedEmployees().forEach(emp=>renderCard(emp,grid)); }
+
+function corpStyle(corp){ return CORP_INFO[corp]||{stripe:'#888',badge:'#eee',badgeTxt:'#333',avatar:AVATAR_FALLBACK[0]}; }
+function initials(n){ return n.slice(0,2); }
+
+function renderCard(emp, container){
+  const year  = getYear();
+  const info  = getLeaveInfo(emp.hireDate, year);
+  const total = calcTotal(emp);
+  const used  = usedDays(emp);
+  const remain = Math.max(0, total - used);
+  const usedPct = total > 0 ? Math.round(used/total*100) : 0;
+  const isOpen = expandedIds.has(emp.id);
+  const rc = remain<=3?'red':remain<=7?'amber':'green';
+  const cs = corpStyle(emp.corp);
+  const lawAuto = (emp.totalDays===null || emp.totalDays===undefined);
+  const desc = lawDaysDesc(emp.hireDate, year);
+  const corpInfo = CORP_INFO[emp.corp]||{label:emp.corp};
+  const tabLabel = currentTab==='hire'?'입사일자 기준 (실시간)':'회계연도 기준';
+  const isResigned = !!emp.resignDate;
+
+  // 연차촉진 배지
+  const promo = isResigned ? null : getPromoStatus(emp);
+  let promoBadgeHtml = '';
+  if(promo==='promo1'){
+    const info2=currentTab==='hire'?calcHireInfo(emp.hireDate):calcFiscalInfo(emp.hireDate,year);
+    const isUnder1=(info2.type==='monthly');
+    promoBadgeHtml = `<span class="promo-badge promo1" title="${isUnder1?'1년미만: 1주년 3개월전 서면통보':'1년이상: 연차 소멸 6개월전 서면통보'}">📢 1차 연차촉진${isUnder1?' (1년미만)':''}</span>`;
+  } else if(promo==='promo2'){
+    const info2=currentTab==='hire'?calcHireInfo(emp.hireDate):calcFiscalInfo(emp.hireDate,year);
+    const isUnder1=(info2.type==='monthly');
+    promoBadgeHtml = `<span class="promo-badge promo2" title="${isUnder1?'1년미만: 1주년 1개월전 사용시기 지정':'1년이상: 연차 소멸 3개월전 서면통보'}">🔔 2차 연차촉진${isUnder1?' (1년미만)':''}</span>`;
+  }
+  if(isResigned) promoBadgeHtml += '<span class="promo-badge" style="background:#f5f5f5;color:#777;border-color:#ccc">🚪 퇴사</span>';
+
+  // 2년차 전환 박스 (회계연도 탭, transition 케이스)
+  let transitionHtml = '';
+  if(currentTab==='fiscal' && info.type==='transition'){
+    const annivStr = fmtDate(info.annivDate);
+    const annualLabel = info.annivReached
+      ? `<div class="sy-item green"><div class="sy-n">${info.annual}</div><div class="sy-l">연차(1주년 이후)</div></div>`
+      : `<div class="sy-item gray"><div class="sy-n">-</div><div class="sy-l">연차(1주년 미도래)</div></div>`;
+    transitionHtml = `
+    <div class="second-year-box">
+      <div class="sy-title">🗓️ 2년차 전환 직원 — 입사 1주년: ${annivStr}${info.annivReached?'  ✅ 도래':'  ⏳ 미도래'}</div>
+      <div class="sy-row">
+        <div class="sy-item blue"><div class="sy-n">${info.monthly}</div><div class="sy-l">월차(1주년 이전)</div></div>
+        ${annualLabel}
+        <div class="sy-item" style="background:#f0f6fd;border-color:#b0c8e0;min-width:140px;text-align:left;padding:8px 12px">
+          <div style="font-size:11px;color:#5a7a99;font-weight:600;margin-bottom:4px">📌 근거</div>
+          <div style="font-size:11px;color:#1a2332;line-height:1.7">
+            1주년 이전: 매월 1일씩 최대 11일<br>
+            1주년 이후: 근로기준법 §60① 15일<br>
+            합산 발생: <strong>${info.monthly + info.annual}일</strong>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // 요약 카드
+  let summaryCards = '';
+  if(currentTab==='fiscal' && info.type==='transition'){
+    summaryCards = `
+    <div class="s-card blue"><div class="sn">${info.monthly}</div><div class="sl">월차(1년미만)</div></div>
+    <div class="s-card green"><div class="sn">${info.annivReached?info.annual:'-'}</div><div class="sl">연차(1년이후)</div></div>
+    <div class="s-card amber"><div class="sn">${fmt(used)}</div><div class="sl">사용 연차</div></div>
+    <div class="s-card ${rc}"><div class="sn">${fmt(remain)}</div><div class="sl">잔여</div></div>
+    <div class="s-card"><div class="sn">${usedPct}%</div><div class="sl">사용률</div></div>`;
+  } else {
+    summaryCards = `
+    <div class="s-card blue"><div class="sn">${fmt(total)}</div><div class="sl">발생 연차</div></div>
+    <div class="s-card amber"><div class="sn">${fmt(used)}</div><div class="sl">사용 연차</div></div>
+    <div class="s-card ${rc}"><div class="sn">${fmt(remain)}</div><div class="sl">잔여 연차</div></div>
+    <div class="s-card"><div class="sn">${usedPct}%</div><div class="sl">사용률</div></div>
+    <div class="s-card"><div class="sn">${info.total}</div><div class="sl">법정 연차</div></div>`;
+  }
+
+  const usageRows = emp.usages
+    .filter(u=>u.date.startsWith(year+''))
+    .sort((a,b)=>a.date.localeCompare(b.date))
+    .map(u=>{
+      let badgeClass='full', badgeLabel='하루';
+      if(u.type==='half_am'){badgeClass='half_am';badgeLabel='오전반차';}
+      else if(u.type==='half_pm'){badgeClass='half_pm';badgeLabel='오후반차';}
+      else if(u.type==='half'){badgeClass='half_pm';badgeLabel='오후반차';} // 기존 데이터 호환
+      else if(u.type==='hour'){badgeClass='hour';badgeLabel='시차';}
+      else if(u.type==='condolence'){badgeClass='condolence';badgeLabel='경조휴가';}
+      else if(u.type==='sick'){badgeClass='sick';badgeLabel='병가';}
+      const usageDisplay=(u.type==='condolence'||u.type==='sick')?'차감없음':`${u.hours}h (${fmt(u.hours/8)}일)`;
+      return `<tr>
+      <td>${u.date}</td>
+      <td><span class="badge ${badgeClass}">${badgeLabel}</span></td>
+      <td>${usageDisplay}</td>
+      <td style="text-align:left;color:#5a7a99;max-width:200px">${u.note||'-'}</td>
+      <td><button class="del-btn" onclick="confirmDeleteUsage(${emp.id},${u.id},'${u.date} ${badgeLabel}')">✕</button></td>
+    </tr>`;
+    }).join('') || `<tr><td colspan="5" style="color:#aaa;padding:14px;text-align:center">사용 내역이 없습니다</td></tr>`;
+
+  const addFormHtml = isResigned
+    ? `<div style="background:#f5f5f5;border-radius:10px;padding:12px;color:#999;font-size:13px;text-align:center;margin-bottom:12px">🚪 퇴사자는 연차 내역을 추가할 수 없습니다.</div>`
+    : `<div class="add-form"><div class="form-row">
+        <div class="f"><label>날짜</label><input type="date" id="ud_${emp.id}" value="${year}-01-01"></div>
+        <div class="f"><label>구분</label>
+          <select id="ut_${emp.id}" onchange="toggleHourField(${emp.id})">
+            <option value="full">하루 (8h)</option>
+            <option value="half_am">오전반차 (4h)</option>
+            <option value="half_pm">오후반차 (4h)</option>
+            <option value="hour">시차</option>
+            <option value="condolence">경조휴가 (연차차감없음)</option>
+            <option value="sick">병가 (연차차감없음)</option>
+          </select>
+        </div>
+        <div class="f" id="uhf_${emp.id}" style="display:none"><label>시간 (h)</label>
+          <input type="number" id="uh_${emp.id}" min="1" max="7" value="2" step="1">
+        </div>
+        <div class="f"><label>비고</label><input type="text" id="un_${emp.id}" placeholder="비고"></div>
+        <div class="f" style="flex:0"><label>&nbsp;</label>
+          <button class="btn" onclick="addUsage(${emp.id})">＋ 추가</button>
+        </div>
+      </div></div>`;
+  const resignedSubInfo = isResigned ? ` · <span style="color:#c62828;font-weight:700">퇴사일: ${emp.resignDate}</span>` : '';
+  const card = document.createElement('div');
+  card.className = 'emp-card';
+  card.id = 'card_'+emp.id;
+  card.innerHTML = `
+  <div class="corp-stripe" style="background:${isResigned?'#9e9e9e':cs.stripe}"></div>
+  <div class="emp-hdr" onclick="toggleCard(${emp.id})" style="${isResigned?'opacity:0.8':''}">
+    <div class="avatar" style="background:${isResigned?'#e0e0e0':cs.avatar[0]};color:${isResigned?'#9e9e9e':cs.avatar[1]}">${initials(emp.name)}</div>
+    <div class="emp-meta">
+      <div class="emp-name">${emp.name}
+        <span class="corp-badge" style="background:${cs.badge};color:${cs.badgeTxt}">${corpInfo.label}</span>
+        <span style="font-size:12px;font-weight:400;color:#6b8aaa">${emp.rank} · ${emp.dept}</span>
+      </div>
+      <div class="emp-sub">입사 ${emp.hireDate||'-'}${resignedSubInfo} · ${tabLabel} · 발생 ${info.total}일${lawAuto?' (자동)':' (수정됨)'}</div>
+    </div>
+    <div class="stat-group">
+      <div class="stat blue"><div class="n">${fmt(total)}</div><div class="l">발생</div></div>
+      <div class="stat amber"><div class="n">${fmt(used)}</div><div class="l">사용</div></div>
+      <div class="stat ${rc}"><div class="n">${fmt(remain)}</div><div class="l">잔여</div></div>
+    </div>
+    <div class="hdr-actions">
+      <button class="btn outline sm" onclick="event.stopPropagation();openEditModal(${emp.id})">수정</button>
+      <button class="btn danger sm" onclick="event.stopPropagation();confirmDeleteEmployee(${emp.id},'${emp.name}')">삭제</button>
+      <div class="promo-wrap">${promoBadgeHtml}</div>
+    </div>
+    <div class="chevron${isOpen?' open':''}">⌄</div>
+  </div>
+  <div class="emp-body${isOpen?' open':''}" id="body_${emp.id}">
+    <div class="save-notice">💾 입력 내용은 브라우저에 자동 저장됩니다. 상단 <strong>💾 파일로 저장</strong> 버튼으로 정기적으로 백업하세요.</div>
+    <div class="summary-cards">${summaryCards}</div>
+    <div class="law-box">📌 <strong>근로기준법 기준:</strong> ${desc}${!lawAuto?`<br>⚠️ 발생 연차가 수동으로 <strong>${fmt(total)}일</strong>로 설정되어 있습니다.`:''}</div>
+    ${transitionHtml}
+    <div class="divider"></div>
+    <div class="sec-title">사용 내역 입력</div>
+    ${addFormHtml}
+    <table class="use-tbl">
+      <thead><tr><th>날짜</th><th>구분</th><th>사용량</th><th style="text-align:left">비고</th><th></th></tr></thead>
+      <tbody>${usageRows}</tbody>
+    </table>
+    <div class="divider"></div>
+    <div class="sec-title">월별 사용 현황 (${year}년)</div>
+    <div class="chart-wrap">
+      <canvas id="chart_${emp.id}" role="img" aria-label="${emp.name} 월별 연차 사용 현황"></canvas>
+    </div>
+  </div>`;
+  container.appendChild(card);
+  if(isOpen) setTimeout(()=>drawChart(emp,year),60);
+}
+
+function toggleCard(id){
+  const body=document.getElementById('body_'+id);
+  const hdr=document.querySelector(`#card_${id} .chevron`);
+  if(expandedIds.has(id)){ expandedIds.delete(id); body.classList.remove('open'); hdr.classList.remove('open'); }
+  else{ expandedIds.add(id); body.classList.add('open'); hdr.classList.add('open'); const emp=employees.find(e=>e.id===id); if(emp) setTimeout(()=>drawChart(emp,getYear()),80); }
+}
+function toggleHourField(empId){
+  const t=document.getElementById('ut_'+empId).value;
+  document.getElementById('uhf_'+empId).style.display=t==='hour'?'':'none';
+}
+// 연차 차감 여부 판단 (경조휴가·병가는 차감 없음)
+function isLeaveDeductible(type){ return type!=='condolence' && type!=='sick'; }
+
+function addUsage(empId){
+  const emp=employees.find(e=>e.id===empId); if(!emp) return;
+  if(emp.resignDate){alert('퇴사자는 연차 내역을 추가할 수 없습니다.');return;}
+  const date=document.getElementById('ud_'+empId).value;
+  const type=document.getElementById('ut_'+empId).value;
+  const note=document.getElementById('un_'+empId).value;
+  if(!date){alert('날짜를 선택하세요.');return;}
+  let hours=8;
+  if(type==='half_am'||type==='half_pm') hours=4;
+  if(type==='hour') hours=parseInt(document.getElementById('uh_'+empId).value)||2;
+  if(type==='condolence'||type==='sick') hours=0;
+  const curYear=new Date().getFullYear();
+  const selYear=getYear();
+  const doAdd=()=>{ emp.usages.push({id:nextUsageId++,date,type,hours,note}); saveData(); refreshCard(emp); };
+  if(selYear < curYear){
+    showConfirm('⚠️',`${selYear}년 이전 연도 자료입니다`,`현재 조회 연도(${selYear}년)는 과거 연도입니다.\n이전 연도 내역을 수정·입력하시겠습니까?`, doAdd, '확인');
+  } else {
+    doAdd();
+  }
+}
+function confirmDeleteUsage(empId,usageId,label){
+  showConfirm('🗑️','연차 내역을 삭제하시겠습니까?',`"${label}" 항목을 삭제합니다.\n삭제 후에는 되돌릴 수 없습니다.`,()=>{
+    const emp=employees.find(e=>e.id===empId); if(!emp) return;
+    emp.usages=emp.usages.filter(u=>u.id!==usageId); saveData(); refreshCard(emp);
+  });
+}
+function confirmDeleteEmployee(id,name){
+  showConfirm('⚠️',`${name} 직원을 삭제하시겠습니까?`,'직원 정보와 모든 연차 내역이 삭제됩니다.\n삭제 후에는 되돌릴 수 없습니다.',()=>{
+    employees=employees.filter(e=>e.id!==id); expandedIds.delete(id);
+    if(charts[id]){charts[id].destroy();delete charts[id];} saveData(); renderAll();
+  });
+}
+function showConfirm(icon,title,msg,callback,okLabel){
+  document.getElementById('conf_icon').textContent=icon; document.getElementById('conf_title').textContent=title;
+  document.getElementById('conf_msg').textContent=msg; confirmCallback=callback;
+  document.getElementById('conf_ok').textContent=okLabel||'삭제';
+  document.getElementById('confirmModal').classList.add('open');
+}
+function doConfirm(){ if(confirmCallback) confirmCallback(); closeConfirm(); }
+function closeConfirm(){ confirmCallback=null; document.getElementById('confirmModal').classList.remove('open'); }
+document.getElementById('confirmModal').addEventListener('click',function(e){if(e.target===this)closeConfirm();});
+
+function refreshCard(emp){
+  const grid=document.getElementById('empGrid'); const old=document.getElementById('card_'+emp.id);
+  const tmp=document.createElement('div'); renderCard(emp,tmp); const newCard=tmp.firstChild;
+  if(old){grid.insertBefore(newCard,old);old.remove();}else{grid.appendChild(newCard);}
+  if(expandedIds.has(emp.id)) setTimeout(()=>drawChart(emp,getYear()),80);
+}
+
+function drawChart(emp,year){
+  const canvas=document.getElementById('chart_'+emp.id); if(!canvas) return;
+  if(charts[emp.id]){charts[emp.id].destroy();delete charts[emp.id];}
+  const monthly=Array(12).fill(0);
+  emp.usages.filter(u=>u.date.startsWith(year+'')).forEach(u=>{ 
+    if(u.type==='condolence'||u.type==='sick') return; // 연차 차감 없음
+    const m=parseInt(u.date.split('-')[1])-1; monthly[m]+=(u.hours||0)/8; 
+  });
+  charts[emp.id]=new Chart(canvas,{
+    type:'bar',
+    data:{labels:MONTHS,datasets:[{label:'사용 연차 (일)',data:monthly.map(v=>parseFloat(v.toFixed(2))),backgroundColor:'rgba(46,117,182,0.2)',borderColor:'#2e75b6',borderWidth:2,borderRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y}일`}}},
+      scales:{y:{beginAtZero:true,ticks:{callback:v=>v+'일',stepSize:1},grid:{color:'rgba(0,0,0,0.04)'}},x:{grid:{display:false},ticks:{autoSkip:false}}}
+    }
+  });
+}
+
+function switchTab(tab,el){ currentTab=tab; document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); renderAll(); }
+
+/** 법인 선택에 따라 부서 드롭다운 갱신. currentVal이 있으면 선택 유지 */
+function updateDeptOptions(corpSelId, deptSelId, currentVal){
+  const corp=document.getElementById(corpSelId).value;
+  const deptSel=document.getElementById(deptSelId);
+  const depts=CORP_DEPTS[corp]||[];
+  deptSel.innerHTML='';
+  if(!corp || depts.length===0){
+    deptSel.innerHTML='<option value="">-- 법인을 먼저 선택하세요 --</option>';
+    return;
+  }
+  depts.forEach(d=>{
+    const opt=document.createElement('option');
+    opt.value=d; opt.textContent=d;
+    if(d===currentVal) opt.selected=true;
+    deptSel.appendChild(opt);
+  });
+  // currentVal이 목록에 없으면 첫 항목 선택
+  if(currentVal && !depts.includes(currentVal)){
+    const opt=document.createElement('option');
+    opt.value=currentVal; opt.textContent=currentVal+'(기존값)'; opt.selected=true;
+    deptSel.insertBefore(opt, deptSel.firstChild);
+  }
+}
+
+// 직원 추가 모달
+function previewLawDays(){ const hire=document.getElementById('m_hire').value; if(!hire) return; document.getElementById('m_law_preview').textContent=lawDaysDesc(hire,getYear()); }
+function openAddModal(){
+  ['m_name','m_note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('m_corp').value='';
+  document.getElementById('m_hire').value='';
+  document.getElementById('m_rank').value='';
+  // 부서 셀렉트 초기화
+  document.getElementById('m_dept').innerHTML='<option value="">-- 법인을 먼저 선택하세요 --</option>';
+  document.getElementById('m_law_preview').textContent='입사일을 선택하면 근로기준법 기준 발생 연차가 자동 계산됩니다.';
+  ['m_name','m_corp','m_dept','m_rank','m_hire'].forEach(id=>document.getElementById(id).classList.remove('required-err'));
+  ['m_name_err','m_corp_err','m_dept_err','m_rank_err','m_hire_err'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  document.getElementById('addModal').classList.add('open');
+}
+function closeAddModal(){ document.getElementById('addModal').classList.remove('open'); }
+document.getElementById('addModal').addEventListener('click',function(e){if(e.target===this)closeAddModal();});
+function addEmployee(){
+  const name=document.getElementById('m_name').value.trim();
+  const corp=document.getElementById('m_corp').value;
+  const dept=document.getElementById('m_dept').value.trim();
+  const rank=document.getElementById('m_rank').value.trim();
+  const hire=document.getElementById('m_hire').value;
+  let valid=true;
+  [{id:'m_name',val:name,errId:'m_name_err'},{id:'m_corp',val:corp,errId:'m_corp_err'},{id:'m_dept',val:dept,errId:'m_dept_err'},{id:'m_rank',val:rank,errId:'m_rank_err'},{id:'m_hire',val:hire,errId:'m_hire_err'}]
+  .forEach(f=>{ const el=document.getElementById(f.id); const err=document.getElementById(f.errId); if(!f.val){el.classList.add('required-err');err.classList.add('show');valid=false;}else{el.classList.remove('required-err');err.classList.remove('show');} });
+  if(!valid) return;
+  employees.push({id:nextEmpId++,name,corp,dept,rank,hireDate:hire,totalDays:null,note:document.getElementById('m_note').value.trim(),usages:[]});
+  saveData(); closeAddModal(); renderAll();
+}
+
+// 직원 수정 모달
+function previewLawDaysEdit(){
+  const hire=document.getElementById('e_hire').value;
+  const previewEl=document.getElementById('e_law_preview');
+  if(!hire){previewEl.style.display='none';previewEl.textContent='';return;}
+  previewEl.style.display='block';
+  previewEl.textContent=lawDaysDesc(hire,getYear());
+  document.getElementById('e_total').value=calcLawDays(hire,getYear());
+}
+function openEditModal(id){
+  const emp=employees.find(e=>e.id===id); if(!emp) return;
+  document.getElementById('e_id').value=id;
+  document.getElementById('e_name').value=emp.name;
+  const corp=emp.corp||'광신석유';
+  document.getElementById('e_corp').value=corp;
+  // 부서 목록 먼저 채운 뒤 현재 값 선택
+  updateDeptOptions('e_corp','e_dept', emp.dept||'');
+  document.getElementById('e_rank').value=emp.rank||'';
+  document.getElementById('e_hire').value=emp.hireDate||'';
+  document.getElementById('e_resign').value=emp.resignDate||'';
+  document.getElementById('e_note').value=emp.note||'';
+  const lawDays=calcLawDays(emp.hireDate,getYear());
+  document.getElementById('e_total').value=emp.totalDays!==null&&emp.totalDays!==undefined?emp.totalDays:lawDays;
+  const previewEl=document.getElementById('e_law_preview');
+  if(emp.hireDate){previewEl.style.display='block';previewEl.textContent=lawDaysDesc(emp.hireDate,getYear());}else{previewEl.style.display='none';}
+  const resignNotice=document.getElementById('e_resign_notice');
+  resignNotice.style.display=emp.resignDate?'block':'none';
+  document.getElementById('editModal').classList.add('open');
+}
+function closeEditModal(){ document.getElementById('editModal').classList.remove('open'); }
+document.getElementById('editModal').addEventListener('click',function(e){if(e.target===this)closeEditModal();});
+function saveEdit(){
+  const id=parseInt(document.getElementById('e_id').value);
+  const emp=employees.find(e=>e.id===id); if(!emp) return;
+  const name=document.getElementById('e_name').value.trim();
+  if(!name){alert('사원명을 입력하세요.');return;}
+  const hire=document.getElementById('e_hire').value;
+  const resign=document.getElementById('e_resign').value;
+  const lawDays=calcLawDays(hire,getYear());
+  const inputTotal=parseFloat(document.getElementById('e_total').value);
+  emp.name=name; emp.corp=document.getElementById('e_corp').value;
+  emp.dept=document.getElementById('e_dept').value.trim()||'미지정';
+  emp.rank=document.getElementById('e_rank').value.trim()||'';
+  emp.hireDate=hire; emp.note=document.getElementById('e_note').value.trim();
+  emp.resignDate=resign||null;
+  emp.totalDays=(inputTotal===lawDays)?null:(isNaN(inputTotal)?null:inputTotal);
+  saveData(); closeEditModal(); renderAll();
+}
+
+// 파일로 저장 (데이터 내장 HTML 다운로드)
+function saveAsFile(){
+  let src = document.documentElement.outerHTML;
+
+  // defaultEmployees를 현재 데이터로 교체
+  src = src.replace(
+    /function defaultEmployees\(\)\s*\{[\s\S]*?\n\}/,
+    `function defaultEmployees(){\n  return ${JSON.stringify(employees, null, 2)};\n}`
+  );
+
+  // nextEmpId, nextUsageId 초기값 교체
+  src = src.replace(
+    /let nextEmpId\s*=\s*\d+,\s*nextUsageId\s*=\s*\d+;/,
+    `let nextEmpId = ${nextEmpId}, nextUsageId = ${nextUsageId};`
+  );
+
+  // loadData fallback 기본값 교체
+  src = src.replace(
+    /nextEmpId=p\.nextEmpId\|\|\d+/g,
+    `nextEmpId=p.nextEmpId||${nextEmpId}`
+  );
+
+  const today = new Date();
+  const dateStr = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`;
+  const fileName = `연차관리대장_${dateStr}.html`;
+
+  // 새 창에 HTML을 열고 저장 안내
+  const win = window.open('', '_blank');
+  if(!win){
+    alert('팝업이 차단되었습니다.\n브라우저 주소창 오른쪽의 팝업 차단 아이콘을 클릭해서 허용해주세요.');
+    return;
+  }
+  win.document.open();
+  win.document.write(src);
+  win.document.close();
+  // 새 창에서 자동으로 저장 다이얼로그 안내
+  setTimeout(()=>{
+    win.alert(`새 창이 열렸습니다.\n\n이 창에서 Ctrl + S 를 누르면\n"${fileName}" 으로 저장할 수 있습니다.`);
+  }, 500);
+}
+
+// CSV
+function saveAsFile(){
+  let src = document.documentElement.outerHTML;
+  src = src.replace(
+    /function defaultEmployees\(\)\s*\{[\s\S]*?\n\}/,
+    `function defaultEmployees(){\n  return ${JSON.stringify(employees, null, 2)};\n}`
+  );
+  src = src.replace(
+    /let nextEmpId\s*=\s*\d+,\s*nextUsageId\s*=\s*\d+;/,
+    `let nextEmpId = ${nextEmpId}, nextUsageId = ${nextUsageId};`
+  );
+  src = src.replace(
+    /nextEmpId=p\.nextEmpId\|\|\d+/g,
+    `nextEmpId=p.nextEmpId||${nextEmpId}`
+  );
+  const today = new Date();
+  const dateStr = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`;
+  const win = window.open('', '_blank');
+  if(!win){ alert('팝업이 차단되었습니다.\n브라우저에서 팝업을 허용해주세요.'); return; }
+  win.document.open();
+  win.document.write(src);
+  win.document.close();
+  setTimeout(()=>{ win.alert(`새 창에서 Ctrl+S 를 눌러\n"연차관리대장_${dateStr}.html" 로 저장하세요.`); }, 500);
+}
+
+function exportCSV(){
+  const year=getYear();
+  const rows=[['법인','이름','부서','직급','입사일','퇴사일','법정연차(발생)','사용연차','잔여연차','사용률','비고']];
+  sortedEmployees().forEach(emp=>{
+    const info=getLeaveInfo(emp.hireDate,year); const total=calcTotal(emp); const used=usedDays(emp); const remain=Math.max(0,total-used);
+    const corpInfo=CORP_INFO[emp.corp]||{label:emp.corp};
+    rows.push([corpInfo.label,emp.name,emp.dept,emp.rank,emp.hireDate,emp.resignDate||'',info.total,fmt(used),fmt(remain),(total>0?Math.round(used/total*100):0)+'%',emp.note||'']);
+  });
+  const csv='\uFEFF'+rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=`연차관리대장_${year}.csv`; a.click();
+}
+
+renderAll();
+</script>
+<!-- PWA 서비스 워커 등록 -->
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js')
+      .then(()=>console.log('SW 등록 완료'))
+      .catch(e=>console.log('SW 등록 실패:', e));
+  });
+}
+</script>
+</body>
+</html>
