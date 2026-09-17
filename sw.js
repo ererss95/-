@@ -1,4 +1,4 @@
-const CACHE = 'yeoncha-v1';
+const CACHE = 'yeoncha-v2';
 const FILES = [
   './연차관리대장.html',
   './manifest.json'
@@ -12,7 +12,7 @@ self.addEventListener('install', e => {
   self.skipWaiting();
 });
 
-// 활성화: 이전 캐시 삭제
+// 활성화: 이전 캐시 전부 삭제
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -22,9 +22,15 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
-// 요청 가로채기: 캐시 우선, 없으면 네트워크
+// 요청 가로채기: 항상 네트워크 우선, 실패하면 캐시
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
+    fetch(e.request)
+      .then(res => {
+        const clone = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+        return res;
+      })
+      .catch(() => caches.match(e.request))
   );
 });
