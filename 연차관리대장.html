@@ -1150,12 +1150,22 @@ function saveAsFile(){
   );
   const today = new Date();
   const dateStr = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`;
-  const win = window.open('', '_blank');
-  if(!win){ alert('팝업이 차단되었습니다.\n브라우저에서 팝업을 허용해주세요.'); return; }
-  win.document.open();
-  win.document.write(src);
-  win.document.close();
-  setTimeout(()=>{ win.alert(`새 창에서 Ctrl+S 를 눌러\n"연차관리대장_${dateStr}.html" 로 저장하세요.`); }, 500);
+  const fileName = `연차관리대장_${dateStr}.html`;
+  const blob = new Blob([src], {type:'text/html;charset=utf-8'});
+
+  // Edge PWA 전용 저장 (msSaveBlob)
+  if(window.navigator && window.navigator.msSaveBlob){
+    window.navigator.msSaveBlob(blob, fileName);
+    return;
+  }
+  // 일반 다운로드
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
 }
 
 function exportCSV(){
