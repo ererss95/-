@@ -319,7 +319,7 @@ let sortKey = 'corp';
 let corpFilter = 'all';
 let expandedIds = new Set();
 let charts = {};
-let nextEmpId = 43, nextUsageId = 100;
+let nextEmpId = 43, nextUsageId = 102;
 let confirmCallback = null;
 
 // ═══════════════════════════════════════════════════════════════
@@ -383,49 +383,527 @@ function migrateCorpName(corp){ if(corp==='A법인')return '광신석유'; if(co
 function saveData(){ try{ localStorage.setItem('leaveData_v5',JSON.stringify({employees,nextEmpId,nextUsageId})); }catch(e){} }
 function defaultEmployees(){
   return [
-    {id:1,name:'최욱진',corp:'광신석유',dept:'현장지원팀',rank:'이사',hireDate:'2000-08-01',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:2,name:'박승환',corp:'광신석유',dept:'현장지원팀',rank:'과장',hireDate:'2019-06-12',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:3,name:'김지환',corp:'광신석유',dept:'현장지원팀',rank:'대리',hireDate:'2018-01-23',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:4,name:'김민호',corp:'광신석유',dept:'현장지원팀',rank:'대리',hireDate:'2023-06-19',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:5,name:'김창배',corp:'광신석유',dept:'인사총무팀',rank:'부장',hireDate:'2002-08-26',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:6,name:'강아량',corp:'광신석유',dept:'인사총무팀',rank:'대리',hireDate:'2020-08-10',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:7,name:'서성종',corp:'광신석유',dept:'경리회계팀',rank:'부장',hireDate:'2005-04-01',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:8,name:'박연회',corp:'광신석유',dept:'양정주유소',rank:'소장',hireDate:'2009-02-02',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:9,name:'조경원',corp:'광신석유',dept:'경리회계팀',rank:'대리',hireDate:'2023-01-11',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:10,name:'박재진',corp:'광신석유',dept:'경리회계팀',rank:'대리',hireDate:'2024-04-15',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:11,name:'최정모',corp:'광신석유',dept:'법인영업팀',rank:'이사',hireDate:'2001-12-17',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:12,name:'류미진',corp:'광신석유',dept:'법인영업팀',rank:'대리',hireDate:'2019-12-09',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:13,name:'정영수',corp:'광신석유',dept:'부산현장',rank:'대형기사',hireDate:'2008-11-17',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:14,name:'이칠우',corp:'광신석유',dept:'부산현장',rank:'대형기사',hireDate:'2007-01-01',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:15,name:'이재일',corp:'광신석유',dept:'부산현장',rank:'대형기사',hireDate:'2012-12-03',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:16,name:'신동철',corp:'광신석유',dept:'부산현장',rank:'대형기사',hireDate:'2017-06-13',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:17,name:'권도현',corp:'광신석유',dept:'경남지사',rank:'대형기사',hireDate:'2009-09-30',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:18,name:'최병호',corp:'광신석유',dept:'울산지사',rank:'대형기사',hireDate:'2009-10-26',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:19,name:'정두영',corp:'광신석유',dept:'명지주유소',rank:'선임소장',hireDate:'2008-08-21',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:20,name:'김인',corp:'광신석유',dept:'명지주유소',rank:'부소장',hireDate:'2006-02-14',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:21,name:'한근영',corp:'광신석유',dept:'충렬대로주유소',rank:'소장',hireDate:'2020-02-24',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:22,name:'김대훈',corp:'광신석유',dept:'충렬대로주유소',rank:'부소장',hireDate:'2023-01-08',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:23,name:'최시훈',corp:'광신석유',dept:'충렬대로주유소',rank:'부소장',hireDate:'2025-11-10',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:24,name:'서충환',corp:'광신석유',dept:'충렬대로주유소',rank:'부소장',hireDate:'2025-11-27',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:25,name:'전채덕',corp:'광신석유',dept:'양정주유소',rank:'소장',hireDate:'1999-09-10',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:26,name:'문상은',corp:'광신석유',dept:'양정주유소',rank:'부소장',hireDate:'2022-12-29',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:27,name:'김상민',corp:'광신석유',dept:'무학주유소',rank:'소장',hireDate:'2023-04-24',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:28,name:'홍해석',corp:'광신석유',dept:'가야대로주유소',rank:'소장',hireDate:'2022-06-20',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:29,name:'이재성',corp:'광신석유',dept:'가야대로주유소',rank:'부소장',hireDate:'2022-08-01',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:30,name:'최성훈',corp:'광신석유',dept:'수영강변대로주유소',rank:'소장',hireDate:'2019-02-14',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:31,name:'김종현',corp:'광신석유',dept:'백양대로주유소',rank:'부소장',hireDate:'2021-02-18',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:32,name:'강태훈',corp:'광신석유',dept:'수영강변대로주유소',rank:'부소장',hireDate:'2025-10-10',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:33,name:'조영진',corp:'광신석유',dept:'울산대교주유소',rank:'소장',hireDate:'2017-03-16',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:34,name:'노동아',corp:'광신석유',dept:'울산대교주유소',rank:'부소장',hireDate:'2024-11-02',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:35,name:'유상혁',corp:'광신석유',dept:'고성주유소',rank:'소장',hireDate:'2017-03-16',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:36,name:'엄영태',corp:'광신석유',dept:'고성주유소',rank:'부소장',hireDate:'2024-12-01',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:37,name:'박민상',corp:'광신석유',dept:'김해대로주유소',rank:'소장',hireDate:'2005-08-12',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:38,name:'김건우',corp:'광신석유',dept:'김해대로주유소',rank:'부소장',hireDate:'2024-01-25',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:39,name:'장상균',corp:'광신석유',dept:'무학주유소',rank:'선임소장',hireDate:'2008-07-03',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:40,name:'강석민',corp:'광신석유',dept:'양덕주유소',rank:'소장',hireDate:'2007-04-23',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:41,name:'이성호',corp:'광신석유',dept:'진해대로주유소',rank:'선임소장',hireDate:'2008-09-01',totalDays:null,note:'',resignDate:null,usages:[]},
-    {id:42,name:'김성표',corp:'광신석유',dept:'진해대로주유소',rank:'부소장',hireDate:'2019-11-20',totalDays:null,note:'',resignDate:null,usages:[]},
-  ];
+  {
+    "id": 1,
+    "name": "최욱진",
+    "corp": "광신석유",
+    "dept": "현장지원팀",
+    "rank": "이사",
+    "hireDate": "2000-08-01",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 2,
+    "name": "박승환",
+    "corp": "광신석유",
+    "dept": "현장지원팀",
+    "rank": "과장",
+    "hireDate": "2019-06-12",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 3,
+    "name": "김지환",
+    "corp": "광신석유",
+    "dept": "현장지원팀",
+    "rank": "대리",
+    "hireDate": "2018-01-23",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 4,
+    "name": "김민호",
+    "corp": "광신석유",
+    "dept": "현장지원팀",
+    "rank": "대리",
+    "hireDate": "2023-06-19",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 5,
+    "name": "김창배",
+    "corp": "광신석유",
+    "dept": "인사총무팀",
+    "rank": "부장",
+    "hireDate": "2002-08-26",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": [
+      {
+        "id": 100,
+        "date": "2026-01-01",
+        "type": "full",
+        "hours": 8,
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "강아량",
+    "corp": "광신석유",
+    "dept": "인사총무팀",
+    "rank": "대리",
+    "hireDate": "2020-08-10",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": [
+      {
+        "id": 101,
+        "date": "2026-01-01",
+        "type": "full",
+        "hours": 8,
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "서성종",
+    "corp": "광신석유",
+    "dept": "경리회계팀",
+    "rank": "부장",
+    "hireDate": "2005-04-01",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 8,
+    "name": "박연회",
+    "corp": "광신석유",
+    "dept": "양정주유소",
+    "rank": "소장",
+    "hireDate": "2009-02-02",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 9,
+    "name": "조경원",
+    "corp": "광신석유",
+    "dept": "경리회계팀",
+    "rank": "대리",
+    "hireDate": "2023-01-11",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 10,
+    "name": "박재진",
+    "corp": "광신석유",
+    "dept": "경리회계팀",
+    "rank": "대리",
+    "hireDate": "2024-04-15",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 11,
+    "name": "최정모",
+    "corp": "광신석유",
+    "dept": "법인영업팀",
+    "rank": "이사",
+    "hireDate": "2001-12-17",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 12,
+    "name": "류미진",
+    "corp": "광신석유",
+    "dept": "법인영업팀",
+    "rank": "대리",
+    "hireDate": "2019-12-09",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 13,
+    "name": "정영수",
+    "corp": "광신석유",
+    "dept": "부산현장",
+    "rank": "대형기사",
+    "hireDate": "2008-11-17",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 14,
+    "name": "이칠우",
+    "corp": "광신석유",
+    "dept": "부산현장",
+    "rank": "대형기사",
+    "hireDate": "2007-01-01",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 15,
+    "name": "이재일",
+    "corp": "광신석유",
+    "dept": "부산현장",
+    "rank": "대형기사",
+    "hireDate": "2012-12-03",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 16,
+    "name": "신동철",
+    "corp": "광신석유",
+    "dept": "부산현장",
+    "rank": "대형기사",
+    "hireDate": "2017-06-13",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 17,
+    "name": "권도현",
+    "corp": "광신석유",
+    "dept": "경남지사",
+    "rank": "대형기사",
+    "hireDate": "2009-09-30",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 18,
+    "name": "최병호",
+    "corp": "광신석유",
+    "dept": "울산지사",
+    "rank": "대형기사",
+    "hireDate": "2009-10-26",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 19,
+    "name": "정두영",
+    "corp": "광신석유",
+    "dept": "명지주유소",
+    "rank": "선임소장",
+    "hireDate": "2008-08-21",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 20,
+    "name": "김인",
+    "corp": "광신석유",
+    "dept": "명지주유소",
+    "rank": "부소장",
+    "hireDate": "2006-02-14",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 21,
+    "name": "한근영",
+    "corp": "광신석유",
+    "dept": "충렬대로주유소",
+    "rank": "소장",
+    "hireDate": "2020-02-24",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 22,
+    "name": "김대훈",
+    "corp": "광신석유",
+    "dept": "충렬대로주유소",
+    "rank": "부소장",
+    "hireDate": "2023-01-08",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 23,
+    "name": "최시훈",
+    "corp": "광신석유",
+    "dept": "충렬대로주유소",
+    "rank": "부소장",
+    "hireDate": "2025-11-10",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 24,
+    "name": "서충환",
+    "corp": "광신석유",
+    "dept": "충렬대로주유소",
+    "rank": "부소장",
+    "hireDate": "2025-11-27",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 25,
+    "name": "전채덕",
+    "corp": "광신석유",
+    "dept": "양정주유소",
+    "rank": "소장",
+    "hireDate": "1999-09-10",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 26,
+    "name": "문상은",
+    "corp": "광신석유",
+    "dept": "양정주유소",
+    "rank": "부소장",
+    "hireDate": "2022-12-29",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 27,
+    "name": "김상민",
+    "corp": "광신석유",
+    "dept": "무학주유소",
+    "rank": "소장",
+    "hireDate": "2023-04-24",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 28,
+    "name": "홍해석",
+    "corp": "광신석유",
+    "dept": "가야대로주유소",
+    "rank": "소장",
+    "hireDate": "2022-06-20",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 29,
+    "name": "이재성",
+    "corp": "광신석유",
+    "dept": "가야대로주유소",
+    "rank": "부소장",
+    "hireDate": "2022-08-01",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 30,
+    "name": "최성훈",
+    "corp": "광신석유",
+    "dept": "수영강변대로주유소",
+    "rank": "소장",
+    "hireDate": "2019-02-14",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 31,
+    "name": "김종현",
+    "corp": "광신석유",
+    "dept": "백양대로주유소",
+    "rank": "부소장",
+    "hireDate": "2021-02-18",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 32,
+    "name": "강태훈",
+    "corp": "광신석유",
+    "dept": "수영강변대로주유소",
+    "rank": "부소장",
+    "hireDate": "2025-10-10",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 33,
+    "name": "조영진",
+    "corp": "광신석유",
+    "dept": "울산대교주유소",
+    "rank": "소장",
+    "hireDate": "2017-03-16",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 34,
+    "name": "노동아",
+    "corp": "광신석유",
+    "dept": "울산대교주유소",
+    "rank": "부소장",
+    "hireDate": "2024-11-02",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 35,
+    "name": "유상혁",
+    "corp": "광신석유",
+    "dept": "고성주유소",
+    "rank": "소장",
+    "hireDate": "2017-03-16",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 36,
+    "name": "엄영태",
+    "corp": "광신석유",
+    "dept": "고성주유소",
+    "rank": "부소장",
+    "hireDate": "2024-12-01",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 37,
+    "name": "박민상",
+    "corp": "광신석유",
+    "dept": "김해대로주유소",
+    "rank": "소장",
+    "hireDate": "2005-08-12",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 38,
+    "name": "김건우",
+    "corp": "광신석유",
+    "dept": "김해대로주유소",
+    "rank": "부소장",
+    "hireDate": "2024-01-25",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 39,
+    "name": "장상균",
+    "corp": "광신석유",
+    "dept": "무학주유소",
+    "rank": "선임소장",
+    "hireDate": "2008-07-03",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 40,
+    "name": "강석민",
+    "corp": "광신석유",
+    "dept": "양덕주유소",
+    "rank": "소장",
+    "hireDate": "2007-04-23",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 41,
+    "name": "이성호",
+    "corp": "광신석유",
+    "dept": "진해대로주유소",
+    "rank": "선임소장",
+    "hireDate": "2008-09-01",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 42,
+    "name": "김성표",
+    "corp": "광신석유",
+    "dept": "진해대로주유소",
+    "rank": "부소장",
+    "hireDate": "2019-11-20",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  }
+];
 }
 let employees = loadData();
 
@@ -1099,38 +1577,529 @@ function saveAsFile(){
   // defaultEmployees를 현재 데이터로 교체
   src = src.replace(
     /function defaultEmployees\(\)\s*\{[\s\S]*?\n\}/,
-    `function defaultEmployees(){\n  return ${JSON.stringify(employees, null, 2)};\n}`
-  );
-
-  // nextEmpId, nextUsageId 초기값 교체
-  src = src.replace(
-    /let nextEmpId\s*=\s*\d+,\s*nextUsageId\s*=\s*\d+;/,
-    `let nextEmpId = ${nextEmpId}, nextUsageId = ${nextUsageId};`
-  );
-
-  // loadData fallback 기본값 교체
-  src = src.replace(
-    /nextEmpId=p\.nextEmpId\|\|\d+/g,
-    `nextEmpId=p.nextEmpId||${nextEmpId}`
-  );
-
-  const today = new Date();
-  const dateStr = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`;
-  const fileName = `연차관리대장_${dateStr}.html`;
-
-  // 새 창에 HTML을 열고 저장 안내
-  const win = window.open('', '_blank');
-  if(!win){
-    alert('팝업이 차단되었습니다.\n브라우저 주소창 오른쪽의 팝업 차단 아이콘을 클릭해서 허용해주세요.');
-    return;
+    `function defaultEmployees(){
+  return [
+  {
+    "id": 1,
+    "name": "최욱진",
+    "corp": "광신석유",
+    "dept": "현장지원팀",
+    "rank": "이사",
+    "hireDate": "2000-08-01",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 2,
+    "name": "박승환",
+    "corp": "광신석유",
+    "dept": "현장지원팀",
+    "rank": "과장",
+    "hireDate": "2019-06-12",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 3,
+    "name": "김지환",
+    "corp": "광신석유",
+    "dept": "현장지원팀",
+    "rank": "대리",
+    "hireDate": "2018-01-23",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 4,
+    "name": "김민호",
+    "corp": "광신석유",
+    "dept": "현장지원팀",
+    "rank": "대리",
+    "hireDate": "2023-06-19",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 5,
+    "name": "김창배",
+    "corp": "광신석유",
+    "dept": "인사총무팀",
+    "rank": "부장",
+    "hireDate": "2002-08-26",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": [
+      {
+        "id": 100,
+        "date": "2026-01-01",
+        "type": "full",
+        "hours": 8,
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "강아량",
+    "corp": "광신석유",
+    "dept": "인사총무팀",
+    "rank": "대리",
+    "hireDate": "2020-08-10",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": [
+      {
+        "id": 101,
+        "date": "2026-01-01",
+        "type": "full",
+        "hours": 8,
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "서성종",
+    "corp": "광신석유",
+    "dept": "경리회계팀",
+    "rank": "부장",
+    "hireDate": "2005-04-01",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 8,
+    "name": "박연회",
+    "corp": "광신석유",
+    "dept": "양정주유소",
+    "rank": "소장",
+    "hireDate": "2009-02-02",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 9,
+    "name": "조경원",
+    "corp": "광신석유",
+    "dept": "경리회계팀",
+    "rank": "대리",
+    "hireDate": "2023-01-11",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 10,
+    "name": "박재진",
+    "corp": "광신석유",
+    "dept": "경리회계팀",
+    "rank": "대리",
+    "hireDate": "2024-04-15",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 11,
+    "name": "최정모",
+    "corp": "광신석유",
+    "dept": "법인영업팀",
+    "rank": "이사",
+    "hireDate": "2001-12-17",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 12,
+    "name": "류미진",
+    "corp": "광신석유",
+    "dept": "법인영업팀",
+    "rank": "대리",
+    "hireDate": "2019-12-09",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 13,
+    "name": "정영수",
+    "corp": "광신석유",
+    "dept": "부산현장",
+    "rank": "대형기사",
+    "hireDate": "2008-11-17",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 14,
+    "name": "이칠우",
+    "corp": "광신석유",
+    "dept": "부산현장",
+    "rank": "대형기사",
+    "hireDate": "2007-01-01",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 15,
+    "name": "이재일",
+    "corp": "광신석유",
+    "dept": "부산현장",
+    "rank": "대형기사",
+    "hireDate": "2012-12-03",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 16,
+    "name": "신동철",
+    "corp": "광신석유",
+    "dept": "부산현장",
+    "rank": "대형기사",
+    "hireDate": "2017-06-13",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 17,
+    "name": "권도현",
+    "corp": "광신석유",
+    "dept": "경남지사",
+    "rank": "대형기사",
+    "hireDate": "2009-09-30",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 18,
+    "name": "최병호",
+    "corp": "광신석유",
+    "dept": "울산지사",
+    "rank": "대형기사",
+    "hireDate": "2009-10-26",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 19,
+    "name": "정두영",
+    "corp": "광신석유",
+    "dept": "명지주유소",
+    "rank": "선임소장",
+    "hireDate": "2008-08-21",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 20,
+    "name": "김인",
+    "corp": "광신석유",
+    "dept": "명지주유소",
+    "rank": "부소장",
+    "hireDate": "2006-02-14",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 21,
+    "name": "한근영",
+    "corp": "광신석유",
+    "dept": "충렬대로주유소",
+    "rank": "소장",
+    "hireDate": "2020-02-24",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 22,
+    "name": "김대훈",
+    "corp": "광신석유",
+    "dept": "충렬대로주유소",
+    "rank": "부소장",
+    "hireDate": "2023-01-08",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 23,
+    "name": "최시훈",
+    "corp": "광신석유",
+    "dept": "충렬대로주유소",
+    "rank": "부소장",
+    "hireDate": "2025-11-10",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 24,
+    "name": "서충환",
+    "corp": "광신석유",
+    "dept": "충렬대로주유소",
+    "rank": "부소장",
+    "hireDate": "2025-11-27",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 25,
+    "name": "전채덕",
+    "corp": "광신석유",
+    "dept": "양정주유소",
+    "rank": "소장",
+    "hireDate": "1999-09-10",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 26,
+    "name": "문상은",
+    "corp": "광신석유",
+    "dept": "양정주유소",
+    "rank": "부소장",
+    "hireDate": "2022-12-29",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 27,
+    "name": "김상민",
+    "corp": "광신석유",
+    "dept": "무학주유소",
+    "rank": "소장",
+    "hireDate": "2023-04-24",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 28,
+    "name": "홍해석",
+    "corp": "광신석유",
+    "dept": "가야대로주유소",
+    "rank": "소장",
+    "hireDate": "2022-06-20",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 29,
+    "name": "이재성",
+    "corp": "광신석유",
+    "dept": "가야대로주유소",
+    "rank": "부소장",
+    "hireDate": "2022-08-01",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 30,
+    "name": "최성훈",
+    "corp": "광신석유",
+    "dept": "수영강변대로주유소",
+    "rank": "소장",
+    "hireDate": "2019-02-14",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 31,
+    "name": "김종현",
+    "corp": "광신석유",
+    "dept": "백양대로주유소",
+    "rank": "부소장",
+    "hireDate": "2021-02-18",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 32,
+    "name": "강태훈",
+    "corp": "광신석유",
+    "dept": "수영강변대로주유소",
+    "rank": "부소장",
+    "hireDate": "2025-10-10",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 33,
+    "name": "조영진",
+    "corp": "광신석유",
+    "dept": "울산대교주유소",
+    "rank": "소장",
+    "hireDate": "2017-03-16",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 34,
+    "name": "노동아",
+    "corp": "광신석유",
+    "dept": "울산대교주유소",
+    "rank": "부소장",
+    "hireDate": "2024-11-02",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 35,
+    "name": "유상혁",
+    "corp": "광신석유",
+    "dept": "고성주유소",
+    "rank": "소장",
+    "hireDate": "2017-03-16",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 36,
+    "name": "엄영태",
+    "corp": "광신석유",
+    "dept": "고성주유소",
+    "rank": "부소장",
+    "hireDate": "2024-12-01",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 37,
+    "name": "박민상",
+    "corp": "광신석유",
+    "dept": "김해대로주유소",
+    "rank": "소장",
+    "hireDate": "2005-08-12",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 38,
+    "name": "김건우",
+    "corp": "광신석유",
+    "dept": "김해대로주유소",
+    "rank": "부소장",
+    "hireDate": "2024-01-25",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 39,
+    "name": "장상균",
+    "corp": "광신석유",
+    "dept": "무학주유소",
+    "rank": "선임소장",
+    "hireDate": "2008-07-03",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 40,
+    "name": "강석민",
+    "corp": "광신석유",
+    "dept": "양덕주유소",
+    "rank": "소장",
+    "hireDate": "2007-04-23",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 41,
+    "name": "이성호",
+    "corp": "광신석유",
+    "dept": "진해대로주유소",
+    "rank": "선임소장",
+    "hireDate": "2008-09-01",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 42,
+    "name": "김성표",
+    "corp": "광신석유",
+    "dept": "진해대로주유소",
+    "rank": "부소장",
+    "hireDate": "2019-11-20",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
   }
-  win.document.open();
-  win.document.write(src);
-  win.document.close();
-  // 새 창에서 자동으로 저장 다이얼로그 안내
-  setTimeout(()=>{
-    win.alert(`새 창이 열렸습니다.\n\n이 창에서 Ctrl + S 를 누르면\n"${fileName}" 으로 저장할 수 있습니다.`);
-  }, 500);
+];
 }
 
 // CSV
@@ -1138,34 +2107,529 @@ function saveAsFile(){
   let src = document.documentElement.outerHTML;
   src = src.replace(
     /function defaultEmployees\(\)\s*\{[\s\S]*?\n\}/,
-    `function defaultEmployees(){\n  return ${JSON.stringify(employees, null, 2)};\n}`
-  );
-  src = src.replace(
-    /let nextEmpId\s*=\s*\d+,\s*nextUsageId\s*=\s*\d+;/,
-    `let nextEmpId = ${nextEmpId}, nextUsageId = ${nextUsageId};`
-  );
-  src = src.replace(
-    /nextEmpId=p\.nextEmpId\|\|\d+/g,
-    `nextEmpId=p.nextEmpId||${nextEmpId}`
-  );
-  const today = new Date();
-  const dateStr = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`;
-  const fileName = `연차관리대장_${dateStr}.html`;
-  const blob = new Blob([src], {type:'text/html;charset=utf-8'});
-
-  // Edge PWA 전용 저장 (msSaveBlob)
-  if(window.navigator && window.navigator.msSaveBlob){
-    window.navigator.msSaveBlob(blob, fileName);
-    return;
+    `function defaultEmployees(){
+  return [
+  {
+    "id": 1,
+    "name": "최욱진",
+    "corp": "광신석유",
+    "dept": "현장지원팀",
+    "rank": "이사",
+    "hireDate": "2000-08-01",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 2,
+    "name": "박승환",
+    "corp": "광신석유",
+    "dept": "현장지원팀",
+    "rank": "과장",
+    "hireDate": "2019-06-12",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 3,
+    "name": "김지환",
+    "corp": "광신석유",
+    "dept": "현장지원팀",
+    "rank": "대리",
+    "hireDate": "2018-01-23",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 4,
+    "name": "김민호",
+    "corp": "광신석유",
+    "dept": "현장지원팀",
+    "rank": "대리",
+    "hireDate": "2023-06-19",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 5,
+    "name": "김창배",
+    "corp": "광신석유",
+    "dept": "인사총무팀",
+    "rank": "부장",
+    "hireDate": "2002-08-26",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": [
+      {
+        "id": 100,
+        "date": "2026-01-01",
+        "type": "full",
+        "hours": 8,
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "강아량",
+    "corp": "광신석유",
+    "dept": "인사총무팀",
+    "rank": "대리",
+    "hireDate": "2020-08-10",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": [
+      {
+        "id": 101,
+        "date": "2026-01-01",
+        "type": "full",
+        "hours": 8,
+        "note": ""
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "서성종",
+    "corp": "광신석유",
+    "dept": "경리회계팀",
+    "rank": "부장",
+    "hireDate": "2005-04-01",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 8,
+    "name": "박연회",
+    "corp": "광신석유",
+    "dept": "양정주유소",
+    "rank": "소장",
+    "hireDate": "2009-02-02",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 9,
+    "name": "조경원",
+    "corp": "광신석유",
+    "dept": "경리회계팀",
+    "rank": "대리",
+    "hireDate": "2023-01-11",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 10,
+    "name": "박재진",
+    "corp": "광신석유",
+    "dept": "경리회계팀",
+    "rank": "대리",
+    "hireDate": "2024-04-15",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 11,
+    "name": "최정모",
+    "corp": "광신석유",
+    "dept": "법인영업팀",
+    "rank": "이사",
+    "hireDate": "2001-12-17",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 12,
+    "name": "류미진",
+    "corp": "광신석유",
+    "dept": "법인영업팀",
+    "rank": "대리",
+    "hireDate": "2019-12-09",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 13,
+    "name": "정영수",
+    "corp": "광신석유",
+    "dept": "부산현장",
+    "rank": "대형기사",
+    "hireDate": "2008-11-17",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 14,
+    "name": "이칠우",
+    "corp": "광신석유",
+    "dept": "부산현장",
+    "rank": "대형기사",
+    "hireDate": "2007-01-01",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 15,
+    "name": "이재일",
+    "corp": "광신석유",
+    "dept": "부산현장",
+    "rank": "대형기사",
+    "hireDate": "2012-12-03",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 16,
+    "name": "신동철",
+    "corp": "광신석유",
+    "dept": "부산현장",
+    "rank": "대형기사",
+    "hireDate": "2017-06-13",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 17,
+    "name": "권도현",
+    "corp": "광신석유",
+    "dept": "경남지사",
+    "rank": "대형기사",
+    "hireDate": "2009-09-30",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 18,
+    "name": "최병호",
+    "corp": "광신석유",
+    "dept": "울산지사",
+    "rank": "대형기사",
+    "hireDate": "2009-10-26",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 19,
+    "name": "정두영",
+    "corp": "광신석유",
+    "dept": "명지주유소",
+    "rank": "선임소장",
+    "hireDate": "2008-08-21",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 20,
+    "name": "김인",
+    "corp": "광신석유",
+    "dept": "명지주유소",
+    "rank": "부소장",
+    "hireDate": "2006-02-14",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 21,
+    "name": "한근영",
+    "corp": "광신석유",
+    "dept": "충렬대로주유소",
+    "rank": "소장",
+    "hireDate": "2020-02-24",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 22,
+    "name": "김대훈",
+    "corp": "광신석유",
+    "dept": "충렬대로주유소",
+    "rank": "부소장",
+    "hireDate": "2023-01-08",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 23,
+    "name": "최시훈",
+    "corp": "광신석유",
+    "dept": "충렬대로주유소",
+    "rank": "부소장",
+    "hireDate": "2025-11-10",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 24,
+    "name": "서충환",
+    "corp": "광신석유",
+    "dept": "충렬대로주유소",
+    "rank": "부소장",
+    "hireDate": "2025-11-27",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 25,
+    "name": "전채덕",
+    "corp": "광신석유",
+    "dept": "양정주유소",
+    "rank": "소장",
+    "hireDate": "1999-09-10",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 26,
+    "name": "문상은",
+    "corp": "광신석유",
+    "dept": "양정주유소",
+    "rank": "부소장",
+    "hireDate": "2022-12-29",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 27,
+    "name": "김상민",
+    "corp": "광신석유",
+    "dept": "무학주유소",
+    "rank": "소장",
+    "hireDate": "2023-04-24",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 28,
+    "name": "홍해석",
+    "corp": "광신석유",
+    "dept": "가야대로주유소",
+    "rank": "소장",
+    "hireDate": "2022-06-20",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 29,
+    "name": "이재성",
+    "corp": "광신석유",
+    "dept": "가야대로주유소",
+    "rank": "부소장",
+    "hireDate": "2022-08-01",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 30,
+    "name": "최성훈",
+    "corp": "광신석유",
+    "dept": "수영강변대로주유소",
+    "rank": "소장",
+    "hireDate": "2019-02-14",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 31,
+    "name": "김종현",
+    "corp": "광신석유",
+    "dept": "백양대로주유소",
+    "rank": "부소장",
+    "hireDate": "2021-02-18",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 32,
+    "name": "강태훈",
+    "corp": "광신석유",
+    "dept": "수영강변대로주유소",
+    "rank": "부소장",
+    "hireDate": "2025-10-10",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 33,
+    "name": "조영진",
+    "corp": "광신석유",
+    "dept": "울산대교주유소",
+    "rank": "소장",
+    "hireDate": "2017-03-16",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 34,
+    "name": "노동아",
+    "corp": "광신석유",
+    "dept": "울산대교주유소",
+    "rank": "부소장",
+    "hireDate": "2024-11-02",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 35,
+    "name": "유상혁",
+    "corp": "광신석유",
+    "dept": "고성주유소",
+    "rank": "소장",
+    "hireDate": "2017-03-16",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 36,
+    "name": "엄영태",
+    "corp": "광신석유",
+    "dept": "고성주유소",
+    "rank": "부소장",
+    "hireDate": "2024-12-01",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 37,
+    "name": "박민상",
+    "corp": "광신석유",
+    "dept": "김해대로주유소",
+    "rank": "소장",
+    "hireDate": "2005-08-12",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 38,
+    "name": "김건우",
+    "corp": "광신석유",
+    "dept": "김해대로주유소",
+    "rank": "부소장",
+    "hireDate": "2024-01-25",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 39,
+    "name": "장상균",
+    "corp": "광신석유",
+    "dept": "무학주유소",
+    "rank": "선임소장",
+    "hireDate": "2008-07-03",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 40,
+    "name": "강석민",
+    "corp": "광신석유",
+    "dept": "양덕주유소",
+    "rank": "소장",
+    "hireDate": "2007-04-23",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 41,
+    "name": "이성호",
+    "corp": "광신석유",
+    "dept": "진해대로주유소",
+    "rank": "선임소장",
+    "hireDate": "2008-09-01",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
+  },
+  {
+    "id": 42,
+    "name": "김성표",
+    "corp": "광신석유",
+    "dept": "진해대로주유소",
+    "rank": "부소장",
+    "hireDate": "2019-11-20",
+    "totalDays": null,
+    "note": "",
+    "resignDate": null,
+    "usages": []
   }
-  // 일반 다운로드
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = fileName;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+];
 }
 
 function exportCSV(){
